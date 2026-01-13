@@ -121,7 +121,7 @@ const App = () => {
   // --- CONTRATO DINÂMICO ---
   useEffect(() => {
     if (!sigCli && !sigPro) {
-      setContractText(`INSTRUMENTO PARTICULAR DE PRESTAÇÃO DE SERVIÇOS\n\n1. PARTES:\nCONTRATADA: ${data.proName || '____________'}, Doc: ${data.proDoc || '____________'}.\nCONTRATANTE: ${data.cliName || '____________'}, Doc: ${data.cliDoc || '____________'}.\n\n2. OBJETO: Execução técnica de: ${data.title || 'Serviços'}. \nDETALHAMENTO: ${data.details || 'Conforme acordado.'}.\n\n3. PAGAMENTO: Valor à vista de ${BRL(totals.pix)}. Ou parcelado no cartão em ${installments}x de ${BRL(totals.perMonth)} (Total: ${BRL(totals.cardTotal)}).\n\n4. MULTA: 10% por cancelamento unilateral.\n\n5. GARANTIA: ${data.warranty}.\n\n6. ACEITE DIGITAL: Validado conforme MP 2.200-2/2001.`);
+      setContractText(`INSTRUMENTO PARTICULAR DE PRESTAÇÃO DE SERVIÇOS\n\n1. PARTES:\nCONTRATADA: ${data.proName || '____________'}, Doc: ${data.proDoc || '____________'}.\nCONTRATANTE: ${data.cliName || '____________'}, Doc: ${data.cliDoc || '____________'}.\n\n2. OBJETO: Execução técnica de: ${data.title || 'Serviços'}. \nDETALHAMENTO: ${data.details || 'Conforme acordado.'}.\n\n3. PAGAMENTO: Valor à vista de ${BRL(totals.pix)}. Ou parcelado no cartão em ${installments}x de ${BRL(totals.perMonth)} (Total: ${BRL(totals.cardTotal)}).\n\n4. RESPONSABILIDADES\n• Prestador: Qualidade técnica e uso de equipamentos de segurança (EPI).\n• Cliente: Fornecer materiais e livre acesso ao local.\n\n5. CANCELAMENTO E MULTA (Art. 603 CC)\n• Se o CLIENTE cancelar sem justa causa, paga o serviço feito + 50% do valor restante.\n• Se o PRESTADOR abandonar o serviço, responde por perdas e danos.\n• Multa de 10% do total para qualquer descumprimento de cláusula.\n\n6. GARANTIA\n• Construção/Estrutural: 5 anos (Art. 618 Código Civil).\n• Reparos/Limpeza: 90 dias (Código de Defesa do Consumidor).\n\n7. ACEITE DIGITAL: Validado conforme MP 2.200-2/2001.`);
     }
   }, [data, totals, installments]);
 
@@ -150,7 +150,7 @@ const App = () => {
     let yPos = 20;
 
     // Header
-    doc.setFillColor(15, 23, 42);
+    doc.setFillColor(15, 23, 42); // #0F172A - Azul Safira Imperial
     doc.rect(0, 0, pageWidth, 40, 'F');
     doc.setTextColor(245, 158, 11);
     doc.setFontSize(24);
