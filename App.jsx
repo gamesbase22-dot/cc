@@ -29,7 +29,63 @@ const Icons = {
   Doc: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>,
   Receipt: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z" /></svg>,
   Diamond: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 3h12l4 6-10 12L2 9z" /><path d="M11 3l-4 6 5 11 5-11-4-6" /><path d="M2 9h20" /></svg>,
+  Users: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
   Zap: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.414 0 .004 5.411.001 12.045a11.811 11.811 0 0 0 1.592 5.918L0 24l6.135-1.61a11.751 11.751 0 0 0 5.911 1.594h.005c6.637 0 12.05-5.414 12.053-12.05a11.82 11.82 0 0 0-3.48-8.508" /></svg>
+};
+
+// PLANS STRUCTURE WITH BENEFITS
+const PLANS = {
+  mensal: {
+    id: 'mensal',
+    name: 'Mensal',
+    price: 27.90,
+    description: 'Menos de R$ 1/dia',
+    highlighted: false,
+    benefits: [
+      'Contratos profissionais ilimitados',
+      'Recibos com validade jurídica',
+      'Cálculo de taxas e impostos',
+      'Sincronização em nuvem',
+      'Geração de PDF profissional',
+      'Integração com WhatsApp',
+      'Suporte por email (48h)'
+    ]
+  },
+  anual: {
+    id: 'anual',
+    name: 'Anual',
+    price: 197.00,
+    description: 'Colheita Garantida',
+    highlighted: true,
+    savings: 'Economia de R$ 137,80 por ano',
+    benefits: [
+      '✨ Tudo do plano Mensal, mais:',
+      '🎯 Suporte prioritário (24h)',
+      '📊 Relatórios mensais automáticos',
+      '💼 Backup automático de contratos',
+      '🔔 Notificações de vencimento',
+      '📱 App mobile (em breve)',
+      '🎓 Acesso a treinamentos exclusivos',
+      '💎 Badge "Cliente Premium"'
+    ]
+  },
+  vitalicio: {
+    id: 'vitalicio',
+    name: 'Vitalício',
+    price: 497.00,
+    description: 'Pague uma vez, use para sempre',
+    highlighted: false,
+    benefits: [
+      '🌟 Tudo do plano Anual, mais:',
+      '♾️ Acesso vitalício garantido',
+      '🚀 Todas as futuras atualizações',
+      '👑 Suporte VIP prioritário',
+      '🎁 Novos recursos em primeira mão',
+      '💰 Melhor custo-benefício',
+      '🔒 Sem mensalidades nunca mais',
+      '🏆 Status de fundador'
+    ]
+  }
 };
 
 const App = () => {
@@ -45,6 +101,16 @@ const App = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [referralCodeInput, setReferralCodeInput] = useState('');
+  const [myReferralCode, setMyReferralCode] = useState('');
+  const [referralCount, setReferralCount] = useState(0);
+
+  // Payment states
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [paymentData, setPaymentData] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
 
   // --- DADOS DO NEGÓCIO ---
   const [installments, setInstallments] = useState(6);
@@ -142,6 +208,108 @@ const App = () => {
       setView('home');
     } catch (error) {
       console.error('Erro ao sair:', error);
+    }
+  };
+
+  // Generate Referral Code on Auth Change
+  useEffect(() => {
+    if (user && user.email) {
+      // Simple hash-like code: COTIA-NAME (or email part)
+      const namePart = (data.proName || user.email.split('@')[0]).replace(/\s+/g, '').toUpperCase().substring(0, 5);
+      const code = `COTIA-${namePart}`;
+      setMyReferralCode(code);
+      // Mock referral count for demo
+      setReferralCount(Math.floor(Math.random() * 5)); // 0-4
+    }
+  }, [user, data.proName]);
+
+  // --- ASAAS PAYMENT FUNCTIONS ---
+  const createAsaasPayment = async (planId) => {
+    setPaymentLoading(true);
+    setPaymentError('');
+
+    try {
+      const plan = PLANS[planId];
+      // Note: In a real app we would use '/api/create-payment' but here we'll use a direct mock or the function call depending on setup.
+      // Since we created the file at api/create-payment.js, Vercel will serve it at /api/create-payment
+
+      const response = await fetch('/api/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: {
+            name: data.proName || user.email.split('@')[0],
+            email: user.email,
+            cpfCnpj: data.proDoc.replace(/\D/g, '') || '00000000000' // Ensure logic for CPF exists
+          },
+          billingType: 'PIX',
+          value: plan.price,
+          dueDate: new Date().toISOString().split('T')[0],
+          description: `Assinatura ${plan.name} - Canaã Pro Diamond`
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao criar pagamento');
+      }
+
+      const paymentResult = await response.json();
+      setPaymentData(paymentResult);
+      setShowCheckout(true);
+
+      // Start polling for payment status
+      startPaymentPolling(paymentResult.id);
+    } catch (error) {
+      console.error('Erro ao criar pagamento:', error);
+      setPaymentError(`Erro ao gerar PIX: ${error.message}`);
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const checkPaymentStatus = async (paymentId) => {
+    try {
+      const response = await fetch(`/api/payment-status?id=${paymentId}`);
+      const result = await response.json();
+
+      if (result.status === 'RECEIVED' || result.status === 'CONFIRMED') {
+        // Pagamento confirmado!
+        setPaymentData(prev => ({ ...prev, status: 'PAID' }));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Erro ao verificar pagamento:', error);
+      return false;
+    }
+  };
+
+  const startPaymentPolling = (paymentId) => {
+    const interval = setInterval(async () => {
+      const isPaid = await checkPaymentStatus(paymentId);
+      if (isPaid) {
+        clearInterval(interval);
+      }
+    }, 5000); // Check every 5 seconds
+
+    // Stop polling after 15 minutes
+    setTimeout(() => clearInterval(interval), 900000);
+  };
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert('Código PIX copiado! Cole no seu app de pagamento.');
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('Código PIX copiado! Cole no seu app de pagamento.');
     }
   };
 
@@ -285,6 +453,16 @@ const App = () => {
     doc.line(pageWidth - margin - 60, yPos + 25, pageWidth - margin, yPos + 25);
     doc.text(data.cliName || 'O CONTRATANTE', pageWidth - margin - 30, yPos + 30, { align: 'center' });
 
+    // --- RODAPÉ OBRIGATÓRIO (GROWTH HACK) ---
+    const footerY = doc.internal.pageSize.getHeight() - 15;
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139); // Slate-500
+    doc.setFont('helvetica', 'normal');
+    doc.text('Documento gerado pelo Canaã Pro | Escritório Digital para Profissionais de Obra', pageWidth / 2, footerY, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(217, 119, 6); // Amber-600
+    doc.text('Teste grátis em: canaapro.com', pageWidth / 2, footerY + 5, { align: 'center' });
+
     // Save PDF
     doc.save(`contrato-canaa-${data.cliName || 'cliente'}.pdf`);
   };
@@ -348,6 +526,16 @@ const App = () => {
     doc.text(data.proName || 'A CONTRATADA', pageWidth / 2, yPos + 30, { align: 'center' });
 
     // Save PDF
+    // --- RODAPÉ OBRIGATÓRIO (GROWTH HACK) ---
+    const footerY = doc.internal.pageSize.getHeight() - 15;
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Documento gerado pelo Canaã Pro | Escritório Digital para Profissionais de Obra', pageWidth / 2, footerY, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(217, 119, 6);
+    doc.text('Teste grátis em: canaapro.com', pageWidth / 2, footerY + 5, { align: 'center' });
+
     doc.save(`recibo-canaa-${data.cliName || 'cliente'}.pdf`);
 
     // Open WhatsApp after generating PDF
@@ -367,9 +555,9 @@ const App = () => {
               <Icons.Diamond />
             </div>
             <h1 className="text-3xl font-black uppercase tracking-tight text-white">
-              CANAÃ <span className="text-[#F59E0B]">PRO</span> DIAMOND
+              CANAÃ <span className="text-[#F59E0B]">PRO</span> | COTIA
             </h1>
-            <p className="text-slate-400 text-sm mt-2">Gestão Profissional de Contratos</p>
+            <p className="text-slate-400 text-sm mt-2">Escritório digital para profissionais de obra de Cotia e região.</p>
           </div>
 
           {/* Auth Form */}
@@ -472,6 +660,16 @@ const App = () => {
                     className="w-full p-4 bg-white/10 text-white border border-white/20 rounded-2xl outline-none font-bold text-sm focus:border-[#D97706] transition-all"
                   />
                 </div>
+                <div>
+                  <label className="block text-xs font-black text-[#F59E0B] uppercase mb-2">Código de Indicação (Opcional)</label>
+                  <input
+                    type="text"
+                    value={referralCodeInput}
+                    onChange={(e) => setReferralCodeInput(e.target.value)}
+                    placeholder="Ex: COTIA-JOAO"
+                    className="w-full p-4 bg-black/30 text-[#F59E0B] border border-[#F59E0B]/30 rounded-2xl outline-none font-bold text-sm focus:border-[#F59E0B] transition-all uppercase tracking-widest placeholder:text-[#F59E0B]/30"
+                  />
+                </div>
                 <button
                   type="submit"
                   disabled={authLoading}
@@ -500,7 +698,7 @@ const App = () => {
         <div className="flex items-center gap-3">
           <div className="bg-gradient-to-br from-[#F59E0B] via-[#D97706] to-[#B45309] p-2.5 rounded-2xl text-black shadow-lg"><Icons.Home /></div>
           <div>
-            <h1 className="text-base font-black uppercase tracking-tight text-white leading-none">CANAÃ <span className="text-[#F59E0B]">PRO</span> DIAMOND</h1>
+            <h1 className="text-base font-black uppercase tracking-tight text-white leading-none">CANAÃ <span className="text-[#F59E0B]">PRO</span> | COTIA</h1>
             <div className="flex items-center gap-1.5 mt-1">
               <div className={`w-1.5 h-1.5 rounded-full ${syncStatus === 'saving' ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`}></div>
               <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest leading-none">Conectado: {user?.email}</p>
@@ -522,8 +720,11 @@ const App = () => {
             {/* PAINEL COLHEITA */}
             <div className="bg-gradient-to-b from-[#1E293B] to-[#0F172A] border border-[#D97706]/40 rounded-[30px] p-6 text-white shadow-2xl relative overflow-hidden text-center">
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#D97706]/10 blur-[60px] rounded-full"></div>
-              <p className="text-[9px] font-black text-[#F59E0B] uppercase tracking-[0.3em] mb-3">Prosperidade Líquida</p>
-              <h2 className="text-4xl font-black text-emerald-400 tracking-tighter mb-6 drop-shadow-lg">{BRL(totals.lucro)}</h2>
+              <p className="text-[9px] font-black text-[#F59E0B] uppercase tracking-[0.3em] mb-3">Prosperidade em Cotia</p>
+              <h2 className="text-4xl font-black text-emerald-400 tracking-tighter mb-2 drop-shadow-lg">{BRL(totals.lucro)}</h2>
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 mb-6 inline-block">
+                <p className="text-[8px] font-black text-emerald-400 uppercase tracking-wide">Mais de 1.284 contratos gerados em Cotia 🚀</p>
+              </div>
               <div className="grid grid-cols-2 gap-3 border-t border-white/5 pt-5 font-black text-sm">
                 <div><p className="text-[8px] font-bold text-slate-500 uppercase mb-1">Proteção</p><span className="text-[#F59E0B]">{BRL(totals.multa)}</span></div>
                 <div><p className="text-[8px] font-bold text-slate-500 uppercase mb-1">Valor Pix</p><span className="text-[#F59E0B]">{BRL(totals.pix)}</span></div>
@@ -580,62 +781,133 @@ const App = () => {
             <h2 className="text-3xl font-black uppercase tracking-tighter text-white">Prosperidade em <span className="text-[#F59E0B]">Canaã</span></h2>
             <p className="text-slate-400 text-sm px-4">Escolha o plano ideal para seu negócio e comece a prosperar hoje</p>
 
-            {/* Benefícios */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 text-left space-y-3">
-              <h3 className="text-sm font-black text-[#F59E0B] uppercase tracking-wide text-center mb-4">✨ Benefícios Inclusos</h3>
-              <div className="space-y-2 text-xs font-bold text-white">
-                <div className="flex items-start gap-3">
-                  <span className="text-emerald-400 text-lg">✓</span>
-                  <span>Contratos profissionais ilimitados</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-emerald-400 text-lg">✓</span>
-                  <span>Recibos com validade jurídica</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-emerald-400 text-lg">✓</span>
-                  <span>Cálculo automático de impostos e taxas</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-emerald-400 text-lg">✓</span>
-                  <span>Sincronização em nuvem (Firebase)</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-emerald-400 text-lg">✓</span>
-                  <span>Geração de PDF profissional</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-emerald-400 text-lg">✓</span>
-                  <span>Integração com WhatsApp</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-emerald-400 text-lg">✓</span>
-                  <span>Suporte prioritário</span>
-                </div>
-              </div>
-            </div>
-
             <div className="space-y-4 mt-8">
-              <div className="bg-white/5 border border-white/10 p-6 rounded-3xl flex justify-between items-center text-white">
-                <div><h3 className="text-lg font-black uppercase text-white">Mensal</h3><p className="text-slate-400 text-xs font-bold mt-1 text-left">Menos de R$ 1/dia</p></div>
-                <div className="text-right font-black text-[#F59E0B] text-2xl">R$ 27,90</div>
-              </div>
-              <div className="bg-gradient-to-br from-[#F59E0B] via-[#D97706] to-[#B45309] p-8 rounded-3xl shadow-2xl relative overflow-hidden text-white border-4 border-black/20">
-                <div className="absolute top-0 right-0 bg-black text-[#F59E0B] px-4 py-1.5 text-[10px] font-black uppercase rounded-bl-2xl">⭐ Recomendado</div>
-                <div className="flex justify-between items-center">
-                  <div><h3 className="text-2xl font-black uppercase leading-none text-white">ANUAL</h3><p className="text-white/80 text-xs font-bold mt-2 text-left">Colheita Garantida</p></div>
-                  <div className="text-right font-black text-4xl text-white">R$ 197</div>
+              {/* PLANO MENSAL */}
+              <div className="bg-white/5 border border-white/10 p-6 rounded-3xl text-left hover:border-[#F59E0B]/50 transition-all cursor-pointer group" onClick={() => setSelectedPlan('mensal')}>
+                <div className="flex justify-between items-center text-white mb-2">
+                  <div>
+                    <h3 className="text-lg font-black uppercase group-hover:text-[#F59E0B] transition-colors">{PLANS.mensal.name}</h3>
+                    <p className="text-slate-400 text-xs font-bold mt-1">{PLANS.mensal.description}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-black text-[#F59E0B] text-2xl">R$ {PLANS.mensal.price.toFixed(2).replace('.', ',')}</span>
+                  </div>
                 </div>
-                <div className="bg-black/30 rounded-2xl p-3 mt-4">
-                  <p className="text-xs font-bold text-white/90">💰 Economia de R$ 137 por ano</p>
-                </div>
-                <button className="w-full bg-black text-[#F59E0B] py-4 rounded-2xl font-black uppercase text-sm mt-6 shadow-2xl active:scale-95 transition-all">Assinar Agora</button>
+                {selectedPlan === 'mensal' && (
+                  <div className="mt-4 pt-4 border-t border-white/10 animate-in fade-in space-y-2">
+                    {PLANS.mensal.benefits.map((benefit, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-xs text-slate-300">
+                        <span className="text-[#F59E0B]">✓</span> {benefit}
+                      </div>
+                    ))}
+                    <button onClick={(e) => { e.stopPropagation(); createAsaasPayment('mensal'); }} className="w-full bg-white text-black py-3 rounded-xl font-black uppercase text-xs mt-4 shadow-lg active:scale-95 transition-all">Assinar Mensal</button>
+                  </div>
+                )}
               </div>
-              <div className="bg-black/50 border-2 border-[#D97706]/40 p-6 rounded-3xl flex justify-between items-center text-[#F59E0B]">
-                <div><h3 className="text-lg font-black uppercase text-[#F59E0B]">Vitalício</h3><p className="text-slate-400 text-xs font-bold mt-1 text-left">Pague uma vez</p></div>
-                <div className="text-right font-black text-2xl text-[#F59E0B]">R$ 497</div>
+
+              {/* PLANO ANUAL */}
+              <div className="bg-gradient-to-br from-[#F59E0B] via-[#D97706] to-[#B45309] p-1 rounded-3xl shadow-2xl relative overflow-hidden text-white border-4 border-black/20 cursor-pointer" onClick={() => setSelectedPlan('anual')}>
+                <div className="bg-black/80 rounded-[20px] p-6 h-full backdrop-blur-sm hover:bg-black/60 transition-all">
+                  <div className="absolute top-0 right-0 bg-[#F59E0B] text-black px-4 py-1 text-[10px] font-black uppercase rounded-bl-2xl">Recomendado</div>
+                  <div className="flex justify-between items-center mb-2">
+                    <div>
+                      <h3 className="text-2xl font-black uppercase leading-none text-[#F59E0B]">{PLANS.anual.name}</h3>
+                      <p className="text-white/80 text-xs font-bold mt-2">{PLANS.anual.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] line-through text-slate-500">R$ 334,80</p>
+                      <span className="font-black text-4xl text-white">R$ {PLANS.anual.price.toFixed(0)}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#F59E0B]/10 border border-[#F59E0B]/20 rounded-xl p-2 mb-4 text-center">
+                    <p className="text-xs font-bold text-[#F59E0B]">{PLANS.anual.savings}</p>
+                  </div>
+
+                  {selectedPlan === 'anual' ? (
+                    <div className="mt-4 pt-4 border-t border-white/10 animate-in fade-in space-y-2 text-left">
+                      {PLANS.anual.benefits.map((benefit, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-xs text-white">
+                          <span className="text-[#F59E0B]">✓</span> {benefit}
+                        </div>
+                      ))}
+                      <button onClick={(e) => { e.stopPropagation(); createAsaasPayment('anual'); }} className="w-full bg-[#F59E0B] text-black py-4 rounded-xl font-black uppercase text-sm mt-4 shadow-xl active:scale-95 transition-all">Assinar Anual</button>
+                    </div>
+                  ) : (
+                    <button className="w-full bg-[#F59E0B] text-black py-3 rounded-xl font-black uppercase text-xs mt-2 shadow-lg">Ver Detalhes</button>
+                  )}
+                </div>
+              </div>
+
+              {/* PLANO VITALÍCIO */}
+              <div className="bg-black/50 border-2 border-[#D97706]/40 p-6 rounded-3xl text-left hover:border-[#D97706] transition-all cursor-pointer" onClick={() => setSelectedPlan('vitalicio')}>
+                <div className="flex justify-between items-center text-[#D97706] mb-2">
+                  <div>
+                    <h3 className="text-lg font-black uppercase">{PLANS.vitalicio.name}</h3>
+                    <p className="text-slate-400 text-xs font-bold mt-1">{PLANS.vitalicio.description}</p>
+                  </div>
+                  <div className="text-right font-black text-2xl">R$ {PLANS.vitalicio.price.toFixed(0)}</div>
+                </div>
+                {selectedPlan === 'vitalicio' && (
+                  <div className="mt-4 pt-4 border-t border-white/10 animate-in fade-in space-y-2">
+                    {PLANS.vitalicio.benefits.map((benefit, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-xs text-slate-300">
+                        <span className="text-[#F59E0B]">✓</span> {benefit}
+                      </div>
+                    ))}
+                    <button onClick={(e) => { e.stopPropagation(); createAsaasPayment('vitalicio'); }} className="w-full bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black py-3 rounded-xl font-black uppercase text-xs mt-4 shadow-lg active:scale-95 transition-all">Assinar Vitalício</button>
+                  </div>
+                )}
               </div>
             </div>
+          </div>
+        )}
+
+        {view === 'promo' && (
+          <div className="space-y-6 animate-in fade-in pb-10 text-center max-w-sm mx-auto">
+            <div className="bg-gradient-to-br from-[#F59E0B] via-[#D97706] to-[#B45309] p-1 rounded-[40px] shadow-2xl relative">
+              <div className="bg-[#1E293B] rounded-[38px] p-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#F59E0B]/20 blur-[50px] rounded-full"></div>
+
+                <div className="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6 ring-4 ring-emerald-500/20">
+                  <Icons.Users />
+                </div>
+
+                <h2 className="text-2xl font-black uppercase text-white mb-2">Ganhe Contratos <span className="text-[#F59E0B]">Grátis</span></h2>
+                <p className="text-slate-400 text-xs font-bold leading-relaxed mb-8">Convide colegas de obra para usar o Canaã Pro. Cada profissional ativo indicado libera contratos extras para você.</p>
+
+                <div className="bg-black/50 border border-white/5 rounded-2xl p-4 mb-6 relative group cursor-pointer" onClick={() => copyToClipboard(myReferralCode)}>
+                  <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-2">Seu Código de Indicação</p>
+                  <div className="text-2xl font-black text-[#F59E0B] tracking-widest">{myReferralCode || 'COTIA-TESTE'}</div>
+                  <div className="absolute inset-0 bg-[#F59E0B]/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs font-black text-[#F59E0B] rounded-2xl">
+                    COPIAR CÓDIGO
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="bg-white/5 rounded-xl p-3 flex items-center gap-4 text-left">
+                    <div className="bg-[#F59E0B] text-black w-10 h-10 rounded-full flex items-center justify-center font-black">1</div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Você Indica</p>
+                      <p className="text-xs font-bold text-white">Amigo ganha 7 dias grátis</p>
+                    </div>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-3 flex items-center gap-4 text-left">
+                    <div className="bg-emerald-500 text-black w-10 h-10 rounded-full flex items-center justify-center font-black">2</div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Você Ganha</p>
+                      <p className="text-xs font-bold text-white">+3 Contratos Premium</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-white/10">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase">Indicações Ativas</p>
+                  <p className="text-3xl font-black text-white">{referralCount}</p>
+                </div>
+              </div>
+            </div>
+            <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Fala irmão, tudo certo?\nTô usando um sistema aqui em Cotia que gera contrato e assinatura digital direto no celular.\nCliente respeita muito mais.\n\nTô liberando teste grátis pra alguns profissionais da região.\nUse meu código: *${myReferralCode}*\n\nBaixa aí: canaapro.com`)}`, '_blank')} className="w-full bg-[#25D366] text-white py-4 rounded-[30px] font-black text-sm uppercase shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-2"><Icons.Zap /> Enviar no WhatsApp</button>
           </div>
         )}
 
@@ -674,6 +946,11 @@ const App = () => {
                 <div contentEditable onBlur={(e) => setContractText(e.currentTarget.innerText)} suppressContentEditableWarning={true} className="text-[14px] leading-relaxed text-slate-700 text-justify whitespace-pre-wrap p-7 rounded-[40px] border border-slate-200 outline-none bg-slate-50 shadow-inner min-h-[350px]">
                   {contractText}
                 </div>
+                {/* RODAPÉ VISUAL DO CONTRATO EDITÁVEL */}
+                <div className="text-center opacity-60 mt-4 border-t border-slate-100 pt-4">
+                  <p className="text-[9px] font-normal text-slate-400">Documento gerado pelo Canaã Pro | Escritório Digital para Profissionais de Obra</p>
+                  <p className="text-[9px] font-bold text-[#D97706]">Teste grátis em: canaapro.com</p>
+                </div>
                 <div className="grid grid-cols-1 gap-12 pt-10 border-t border-slate-100 text-center">
                   <div className="flex flex-col items-center">
                     {sigPro ? <img src={sigPro} className="max-h-24 mb-1" /> : <button onClick={() => setActiveSigner('pro')} className="bg-[#D97706] text-black px-10 py-4 rounded-[25px] font-black uppercase text-[10px] shadow-xl">Assinar (Eu)</button>}
@@ -696,13 +973,59 @@ const App = () => {
       </main>
 
       {/* NAV BAR: SAPPHIRE & GOLD */}
-      <nav className="shrink-0 bg-[#1E293B] border-t border-[#D97706]/30 p-6 flex justify-around items-center z-[60] shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-        {[{ id: 'home', icon: Icons.Home, label: 'Dash' }, { id: 'card', icon: Icons.Card, label: 'Cartão' }, { id: 'planos', icon: Icons.Diamond, label: 'Planos' }, { id: 'contract', icon: Icons.Doc, label: 'Papéis' }, { id: 'receipt', icon: Icons.Receipt, label: 'Recibo' }].map(n => (
-          <button key={n.id} onClick={() => setView(n.id)} className={`flex flex-col items-center gap-2 transition-all duration-300 ${view === n.id ? 'text-[#F59E0B] scale-125' : 'text-slate-600'}`}>
-            <n.icon /><span className="text-[9px] font-black uppercase mt-1 tracking-tighter leading-none">{n.label}</span>
+      <nav className="shrink-0 bg-[#1E293B] border-t border-[#D97706]/30 p-4 flex justify-around items-center z-[60] shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        {[{ id: 'home', icon: Icons.Home, label: 'Dash' }, { id: 'card', icon: Icons.Card, label: 'Cartão' }, { id: 'planos', icon: Icons.Diamond, label: 'Planos' }, { id: 'promo', icon: Icons.Users, label: 'Grátis' }, { id: 'contract', icon: Icons.Doc, label: 'Papéis' }, { id: 'receipt', icon: Icons.Receipt, label: 'Recibo' }].map(n => (
+          <button key={n.id} onClick={() => setView(n.id)} className={`flex flex-col items-center gap-1.5 transition-all duration-300 ${view === n.id ? 'text-[#F59E0B] scale-110' : 'text-slate-600'}`}>
+            <n.icon /><span className="text-[8px] font-black uppercase tracking-tighter leading-none">{n.label}</span>
           </button>
         ))}
       </nav>
+
+      {/* MODAL CHECKOUT PIX */}
+      {showCheckout && paymentData && (
+        <div className="fixed inset-0 bg-black/98 backdrop-blur-3xl z-[100] flex items-center justify-center p-6 text-center">
+          <div className="bg-[#1E293B] w-full max-w-md rounded-[40px] p-8 shadow-2xl animate-in zoom-in border border-[#D97706]/30 relative">
+            {paymentData.status === 'PAID' ? (
+              <div className="space-y-6">
+                <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto text-black shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+                  <Icons.Zap />
+                </div>
+                <h2 className="text-2xl font-black uppercase text-white tracking-widest">Pagamento Aprovado!</h2>
+                <p className="text-slate-400 text-sm">Seu plano foi ativado com sucesso.</p>
+                <button onClick={() => { setShowCheckout(false); setView('home'); }} className="w-full bg-emerald-500 text-black py-4 rounded-3xl font-black uppercase text-sm shadow-xl hover:bg-emerald-400 transition-all">Começar a Usar</button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center border-b border-white/5 pb-4">
+                  <h3 className="text-lg font-black uppercase text-[#F59E0B]">Pagamento via PIX</h3>
+                  <button onClick={() => setShowCheckout(false)} className="text-slate-500 hover:text-white">✕</button>
+                </div>
+
+                <div className="bg-white p-4 rounded-3xl border-4 border-white/10 mx-auto w-fit shadow-xl">
+                  {paymentData.pix && paymentData.pix.encodedImage ? (
+                    <img src={`data:image/png;base64,${paymentData.pix.encodedImage}`} alt="QR Code PIX" className="w-48 h-48 mix-blend-multiply" />
+                  ) : (
+                    <div className="w-48 h-48 flex items-center justify-center text-black font-bold text-xs bg-slate-200 rounded-xl">Carregando QR...</div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Código PIX Copia e Cola</p>
+                  <div className="flex gap-2">
+                    <input readOnly value={paymentData.pix?.payload || ''} className="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-3 text-[10px] text-slate-300 font-mono text-ellipsis overflow-hidden" />
+                    <button onClick={() => copyToClipboard(paymentData.pix?.payload)} className="bg-[#D97706] text-black px-4 rounded-xl font-bold text-xs hover:bg-[#F59E0B]">Copiar</button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center gap-2 text-[#F59E0B] animate-pulse pt-4">
+                  <div className="w-2 h-2 bg-[#F59E0B] rounded-full"></div>
+                  <span className="text-xs font-bold uppercase tracking-widest">Aguardando Pagamento...</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* MODAL ASSINATURA */}
       {activeSigner && (
