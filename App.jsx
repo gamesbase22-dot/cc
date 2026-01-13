@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import jsPDF from 'jspdf';
 
 // --- CONEXÃO OFICIAL FIREBASE DO SÓCIO ---
 const firebaseConfig = {
@@ -140,6 +141,72 @@ const App = () => {
 
   const saveSig = () => { if (activeSigner === 'pro') setSigPro(canvasRef.current.toDataURL()); else setSigCli(canvasRef.current.toDataURL()); setActiveSigner(null); };
 
+  // --- GERADOR DE PDF ---
+  const generatePDF = () => {
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const contentWidth = pageWidth - (margin * 2);
+    let yPos = 20;
+
+    // Header
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(245, 158, 11);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CANAÃ PRO DIAMOND', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setTextColor(148, 163, 184);
+    doc.text('Contrato de Prestação de Serviços', pageWidth / 2, 30, { align: 'center' });
+
+    // Contract content
+    yPos = 55;
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+
+    const lines = contractText.split('\n');
+    lines.forEach(line => {
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+      const splitText = doc.splitTextToSize(line || ' ', contentWidth);
+      doc.text(splitText, margin, yPos);
+      yPos += splitText.length * 6;
+    });
+
+    // Signatures
+    if (yPos > 230) {
+      doc.addPage();
+      yPos = 20;
+    }
+
+    yPos += 20;
+    doc.setDrawColor(217, 119, 6);
+    doc.setLineWidth(0.5);
+
+    // Contratada signature
+    if (sigPro) {
+      doc.addImage(sigPro, 'PNG', margin, yPos, 60, 20);
+    }
+    doc.line(margin, yPos + 25, margin + 60, yPos + 25);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(data.proName || 'A CONTRATADA', margin + 30, yPos + 30, { align: 'center' });
+
+    // Contratante signature
+    if (sigCli) {
+      doc.addImage(sigCli, 'PNG', pageWidth - margin - 60, yPos, 60, 20);
+    }
+    doc.line(pageWidth - margin - 60, yPos + 25, pageWidth - margin, yPos + 25);
+    doc.text(data.cliName || 'O CONTRATANTE', pageWidth - margin - 30, yPos + 30, { align: 'center' });
+
+    // Save PDF
+    doc.save(`contrato-canaa-${data.cliName || 'cliente'}.pdf`);
+  };
+
   return (
     <div className="fixed inset-0 flex flex-col bg-[#0F172A] text-[#FEF3C7] overflow-hidden font-sans select-none border-t-[6px] border-[#D97706]">
 
@@ -188,7 +255,7 @@ const App = () => {
                 <input placeholder="Cliente" value={data.cliName} onChange={e => setData({ ...data, cliName: e.target.value })} className="p-4 bg-white/5 text-white border border-white/10 rounded-xl outline-none text-[16px]" />
               </div>
             </div>
-            <button onClick={() => setView('card')} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-7 rounded-[35px] font-black text-xl shadow-2xl active:scale-95 transition-all uppercase">Avançar para Documentos</button>
+            <button onClick={() => setView('card')} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-4 md:py-6 rounded-[35px] font-black text-sm md:text-lg shadow-2xl active:scale-95 transition-all uppercase">Avançar para Documentos</button>
           </div>
         )}
 
@@ -211,7 +278,7 @@ const App = () => {
                 </div>
               </div>
             </div>
-            <button onClick={() => setView('contract')} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-7 rounded-[35px] font-black uppercase shadow-2xl">Gerar Documentos</button>
+            <button onClick={() => setView('contract')} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-4 md:py-6 rounded-[35px] font-black text-sm md:text-base uppercase shadow-2xl">Gerar Documentos</button>
           </div>
         )}
 
@@ -262,7 +329,7 @@ const App = () => {
                 </div>
               </div>
             </div>
-            <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("*RECIBO OFICIAL CANAÃ PRO*\n\nQuitação integral de " + BRL(totals.pix) + " para " + data.title)}`, '_blank')} className="w-full bg-[#25D366] text-white py-6 rounded-[40px] font-black text-sm uppercase flex items-center justify-center gap-4 shadow-2xl active:scale-95 transition-all"><Icons.Zap /> Enviar Comprovante no WhatsApp</button>
+            <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("*RECIBO OFICIAL CANAÃ PRO*\n\nQuitação integral de " + BRL(totals.pix) + " para " + data.title)}`, '_blank')} className="w-full bg-[#25D366] text-white py-3 md:py-5 rounded-[40px] font-black text-xs md:text-sm uppercase flex items-center justify-center gap-2 md:gap-4 shadow-2xl active:scale-95 transition-all"><Icons.Zap /> Enviar Comprovante no WhatsApp</button>
           </div>
         )}
 
@@ -291,8 +358,9 @@ const App = () => {
                 </div>
               </div>
             </div>
-            <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("*CONTRATO OFICIAL CANAÃ PRO*\n\n" + contractText)}`, '_blank')} className="w-full bg-[#25D366] text-white py-6 rounded-[40px] font-black text-sm uppercase flex items-center justify-center gap-4 shadow-2xl active:scale-95 transition-all"><Icons.Zap /> Mandar Contrato no WhatsApp</button>
-            <button onClick={() => setView('home')} className="w-full bg-white/10 text-slate-400 py-5 rounded-[40px] font-black text-[11px] uppercase border border-white/5 mt-2">Voltar ao Painel</button>
+            <button onClick={generatePDF} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-3 md:py-5 rounded-[40px] font-black text-xs md:text-sm uppercase flex items-center justify-center gap-2 md:gap-4 shadow-2xl active:scale-95 transition-all"><Icons.Doc /> Gerar PDF do Contrato</button>
+            <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("*CONTRATO OFICIAL CANAÃ PRO*\n\n" + contractText)}`, '_blank')} className="w-full bg-[#25D366] text-white py-3 md:py-5 rounded-[40px] font-black text-xs md:text-sm uppercase flex items-center justify-center gap-2 md:gap-4 shadow-2xl active:scale-95 transition-all"><Icons.Zap /> Mandar Contrato no WhatsApp</button>
+            <button onClick={() => setView('home')} className="w-full bg-white/10 text-slate-400 py-3 md:py-4 rounded-[40px] font-black text-[10px] md:text-xs uppercase border border-white/5 mt-2">Voltar ao Painel</button>
           </div>
         )}
       </main>
@@ -314,8 +382,8 @@ const App = () => {
             <div className="bg-white rounded-[50px] border-4 border-dashed border-[#D97706]/30 mb-10 overflow-hidden h-64 shadow-inner ring-[15px] ring-white/5">
               <canvas ref={canvasRef} width={320} height={256} className="w-full h-full cursor-crosshair touch-none bg-white" />
             </div>
-            <button onClick={saveSig} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-6 rounded-[30px] font-black text-lg shadow-2xl active:scale-95 transition-all uppercase mb-4 tracking-tighter">Confirmar Firma</button>
-            <button onClick={() => setActiveSigner(null)} className="w-full text-slate-500 text-[11px] font-black uppercase tracking-[0.5em] hover:text-[#D97706]">Cancelar</button>
+            <button onClick={saveSig} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-4 md:py-5 rounded-[30px] font-black text-sm md:text-base shadow-2xl active:scale-95 transition-all uppercase mb-4 tracking-tighter">Confirmar Firma</button>
+            <button onClick={() => setActiveSigner(null)} className="w-full text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] md:tracking-[0.5em] hover:text-[#D97706]">Cancelar</button>
           </div>
         </div>
       )}
