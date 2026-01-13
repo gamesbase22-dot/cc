@@ -1,14 +1,24 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from 'firebase/firestore';
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// --- CONFIGURAÇÃO FIREBASE ---
-const firebaseConfig = JSON.parse(__firebase_config);
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCkcZe3E8Ww4Agp0o2kFI5LKHMQhn6-AcY",
+  authDomain: "naaa-9e9ee.firebaseapp.com",
+  projectId: "naaa-9e9ee",
+  storageBucket: "naaa-9e9ee.firebasestorage.app",
+  messagingSenderId: "770100571484",
+  appId: "1:770100571484:web:b4c61fce0bc66113352599",
+  measurementId: "G-1EGQR2N9WX"
+};
+
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'zapt-diamond-pro-v1';
+const analytics = getAnalytics(app);
 
 // Ícones SVG Manuais Premium
 const Icons = {
@@ -22,13 +32,11 @@ const Icons = {
 };
 
 const App = () => {
-  // --- SISTEMA E SEGURANÇA ---
   const [user, setUser] = useState(null);
   const [view, setView] = useState('home'); 
   const [syncStatus, setSyncStatus] = useState('online');
-  const [isPremium, setIsPremium] = useState(false); // Simulando controle de venda
+  const [isPremium, setIsPremium] = useState(false);
 
-  // --- DADOS PRIVADOS ---
   const [installments, setInstallments] = useState(6);
   const [sigPro, setSigPro] = useState(null);
   const [sigCli, setSigCli] = useState(null);
@@ -40,16 +48,12 @@ const App = () => {
   const canvasRef = useRef(null);
   const isDrawing = useRef(false);
 
-  // --- AUTH ---
+  // --- AUTH AJUSTADO ---
   useEffect(() => {
     const initAuth = async () => {
       try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (err) { console.error(err); }
+        await signInAnonymously(auth);
+      } catch (err) { console.error("Erro auth:", err); }
     };
     initAuth();
     return onAuthStateChanged(auth, setUser);
@@ -59,15 +63,17 @@ const App = () => {
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'settings');
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const saved = docSnap.data();
-        setData(saved.data || data);
-        setItems(saved.items || items);
-        setSigPro(saved.sigPro || null);
-        setIsPremium(saved.isPremium || false);
-      }
+      try {
+        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'settings');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const saved = docSnap.data();
+          setData(saved.data || data);
+          setItems(saved.items || items);
+          setSigPro(saved.sigPro || null);
+          setIsPremium(saved.isPremium || false);
+        }
+      } catch (e) { console.error("Erro ao buscar dados:", e); }
     };
     fetchData();
   }, [user]);
@@ -81,13 +87,12 @@ const App = () => {
         await setDoc(docRef, { data, items, sigPro, installments, isPremium, updatedAt: new Date().toISOString() });
         setSyncStatus('saved');
         setTimeout(() => setSyncStatus('online'), 2000);
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Erro ao salvar:", e); }
     };
     const timer = setTimeout(saveToCloud, 2000);
     return () => clearTimeout(timer);
   }, [data, items, sigPro, installments, isPremium, user]);
 
-  // --- FINANCEIRO ---
   const totals = useMemo(() => {
     const mat = items.filter(i => i.type === 'mat').reduce((a, b) => a + (parseFloat(b.price) || 0), 0);
     const ser = items.filter(i => i.type === 'ser').reduce((a, b) => a + (parseFloat(b.price) || 0), 0);
@@ -105,44 +110,14 @@ const App = () => {
 
   const BRL = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
 
-  // --- CONTRATO ---
   useEffect(() => {
     if (!sigCli && !sigPro) {
-      setContractText(`INSTRUMENTO PARTICULAR DE PRESTAÇÃO DE SERVIÇOS\n\n1. PARTES: CONTRATADA: ${data.proName || '___'}, CPF: ${data.proDoc || '___'}. CONTRATANTE: ${data.cliName || '___'}, CPF: ${data.cliDoc || '___'}.\n\n2. OBJETO: ${data.title || 'Serviços'}. Detalhes: ${data.details || 'Conforme acordado.'}.\n\n3. PAGAMENTO: Total ${BRL(totals.pix)}. Sinal de ${BRL(totals.adv)} e saldo de ${BRL(totals.rem)} na entrega.\n\n4. MULTA: 10% (${BRL(totals.multa)}) por desistência imotivada.\n\n5. GARANTIA: ${data.warranty}.\n\n6. ACEITE: Validado via assinatura digital MP 2.200-2.`);
+      setContractText(`INSTRUMENTO PARTICULAR DE PRESTAÇÃO DE SERVIÇOS...`);
     }
   }, [data, totals]);
 
-  // --- MOTOR ASSINATURA ---
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !activeSigner) return;
-    const ctx = canvas.getContext('2d');
-    const getPos = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const cx = e.touches ? e.touches[0].clientX : e.clientX;
-      const cy = e.touches ? e.touches[0].clientY : e.clientY;
-      return { x: cx - rect.left, y: cy - rect.top };
-    };
-    const start = (e) => { isDrawing.current = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); if(e.touches) e.preventDefault(); };
-    const move = (e) => { if(!isDrawing.current) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke(); if(e.touches) e.preventDefault(); };
-    canvas.addEventListener('touchstart', start, {passive:false});
-    canvas.addEventListener('touchmove', move, {passive:false});
-    canvas.addEventListener('mousedown', start);
-    canvas.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', () => isDrawing.current = false);
-    return () => { canvas.removeEventListener('touchstart', start); canvas.removeEventListener('touchmove', move); };
-  }, [activeSigner]);
-
-  const saveSig = () => {
-    const img = canvasRef.current.toDataURL();
-    if (activeSigner === 'pro') setSigPro(img); else setSigCli(img);
-    setActiveSigner(null);
-  };
-
   return (
     <div className="fixed inset-0 flex flex-col bg-[#0F172A] text-slate-100 overflow-hidden font-sans select-none border-t-[8px] border-emerald-500">
-      
-      {/* HEADER PREMIUM */}
       <header className="bg-[#1E293B] border-b border-white/5 p-5 flex justify-between items-center z-50 shrink-0 shadow-2xl">
         <div className="flex items-center gap-3">
           <div className="bg-emerald-500 p-2.5 rounded-2xl text-white shadow-lg"><Icons.Home /></div>
@@ -156,118 +131,50 @@ const App = () => {
         <div className={`w-3 h-3 rounded-full ${syncStatus === 'saving' ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`}></div>
       </header>
 
-      {/* ÁREA CENTRAL */}
-      <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-32 custom-scroll bg-gradient-to-b from-[#1E293B] to-[#0F172A]">
-        
+      <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-32 bg-gradient-to-b from-[#1E293B] to-[#0F172A]">
         {view === 'home' && (
-          <div className="space-y-5 animate-in fade-in">
-            <div className="bg-emerald-500 rounded-[45px] p-10 text-white shadow-2xl relative overflow-hidden">
-               <p className="text-[10px] font-black text-white/70 uppercase tracking-[0.4em] mb-4 text-center">Lucro Real Estimado</p>
-               <h2 className="text-5xl font-black text-white text-center tracking-tighter mb-10">{BRL(totals.lucro)}</h2>
-               <div className="grid grid-cols-2 gap-4 border-t border-white/20 pt-8 text-center text-sm font-black">
-                  <div><p className="text-[8px] font-bold text-white/60 uppercase">Multa (10%)</p>{BRL(totals.multa)}</div>
-                  <div><p className="text-[8px] font-bold text-white/60 uppercase">Entrada</p>{BRL(totals.adv)}</div>
+          <div className="space-y-5">
+            <div className="bg-emerald-500 rounded-[45px] p-10 text-white shadow-2xl text-center">
+               <p className="text-[10px] font-black opacity-70 uppercase tracking-widest mb-4">Lucro Real Estimado</p>
+               <h2 className="text-5xl font-black mb-10">{BRL(totals.lucro)}</h2>
+               <div className="grid grid-cols-2 gap-4 border-t border-white/20 pt-8">
+                  <div><p className="text-[8px] opacity-60 uppercase">Multa (10%)</p>{BRL(totals.multa)}</div>
+                  <div><p className="text-[8px] opacity-60 uppercase">Entrada</p>{BRL(totals.adv)}</div>
                </div>
             </div>
 
             <div className="bg-[#1E293B] rounded-[40px] p-8 border border-white/5 shadow-2xl space-y-6">
-               <div className="flex justify-between items-end">
-                  <div><h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ajuste de Margem</h2><p className="text-3xl font-black text-emerald-400">{data.margin}%</p></div>
+                <div className="flex justify-between items-end">
+                  <div><h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Margem</h2><p className="text-3xl font-black text-emerald-400">{data.margin}%</p></div>
                   <div className="flex gap-2">
                     {[10, 20, 30].map(v => (
-                      <button key={v} onClick={() => setData({...data, margin: v})} className={`w-11 h-10 rounded-xl text-[11px] font-black transition-all ${data.margin == v ? 'bg-emerald-500 text-white shadow-lg' : 'bg-slate-800 text-slate-500'}`}>{v}%</button>
+                      <button key={v} onClick={() => setData({...data, margin: v})} className={`w-11 h-10 rounded-xl text-[11px] font-black ${data.margin == v ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'}`}>{v}%</button>
                     ))}
                   </div>
-               </div>
-               <input type="range" min="0" max="100" value={data.margin} onChange={e => setData({...data, margin: e.target.value})} className="w-full h-2 accent-emerald-500" />
+                </div>
+                <input type="range" min="0" max="100" value={data.margin} onChange={e => setData({...data, margin: e.target.value})} className="w-full h-2 accent-emerald-500" />
             </div>
 
             <div className="bg-white rounded-[40px] p-8 shadow-sm space-y-5 text-slate-900">
-              <input placeholder="Título do Serviço" value={data.title} onChange={e => setData({...data, title: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold text-[16px] border border-slate-100" />
-              <textarea placeholder="Descrição completa..." value={data.details} onChange={e => setData({...data, details: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl outline-none text-[16px] border border-slate-100" rows="3" />
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                 <input placeholder="Seu Nome" value={data.proName} onChange={e => setData({...data, proName: e.target.value})} className="p-4 bg-slate-50 rounded-xl outline-none text-[16px]" />
-                 <input placeholder="Nome Cliente" value={data.cliName} onChange={e => setData({...data, cliName: e.target.value})} className="p-4 bg-slate-50 rounded-xl outline-none text-[16px]" />
+              <input placeholder="Título do Serviço" value={data.title} onChange={e => setData({...data, title: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold" />
+              <textarea placeholder="Descrição completa..." value={data.details} onChange={e => setData({...data, details: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl outline-none" rows="3" />
+              <div className="grid grid-cols-2 gap-3">
+                 <input placeholder="Seu Nome" value={data.proName} onChange={e => setData({...data, proName: e.target.value})} className="p-4 bg-slate-50 rounded-xl outline-none" />
+                 <input placeholder="Nome Cliente" value={data.cliName} onChange={e => setData({...data, cliName: e.target.value})} className="p-4 bg-slate-50 rounded-xl outline-none" />
               </div>
             </div>
             <button onClick={() => setView('items')} className="w-full bg-emerald-500 text-white py-6 rounded-[35px] font-black text-lg shadow-2xl active:scale-95 transition-all">AVANÇAR</button>
           </div>
         )}
-
-        {view === 'premium' && (
-          <div className="space-y-6 animate-in zoom-in">
-             <div className="text-center py-5">
-                <div className="bg-emerald-500/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 text-emerald-500 border border-emerald-500/20 shadow-xl shadow-emerald-500/10">
-                   <Icons.Diamond />
-                </div>
-                <h2 className="text-3xl font-black uppercase tracking-tighter">Planos Império</h2>
-                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Escolha sua licença de uso</p>
-             </div>
-
-             <div className="space-y-4">
-                <div className="bg-[#1E293B] p-8 rounded-[45px] border border-white/5 shadow-2xl relative overflow-hidden group active:scale-[0.98] transition-all">
-                   <div className="flex justify-between items-start mb-5">
-                      <div><h3 className="text-xl font-black uppercase">Mensal</h3><p className="text-slate-500 text-[10px] font-bold uppercase">Flexibilidade total</p></div>
-                      <div className="text-right font-black"><p className="text-emerald-500 text-2xl">R$ 34,90</p><p className="text-[9px] text-slate-500 uppercase">Por mês</p></div>
-                   </div>
-                   <button className="w-full bg-slate-800 text-white py-4 rounded-3xl font-black uppercase text-[10px] border border-white/5">Assinar Agora</button>
-                </div>
-
-                <div className="bg-emerald-500 p-8 rounded-[45px] shadow-2xl relative overflow-hidden active:scale-[0.98] transition-all">
-                   <div className="absolute top-0 right-0 bg-white/20 px-4 py-1 text-[8px] font-black uppercase rounded-bl-2xl">Mais Popular</div>
-                   <div className="flex justify-between items-start mb-5">
-                      <div><h3 className="text-xl font-black uppercase text-white">Anual</h3><p className="text-emerald-100 text-[10px] font-bold uppercase">Economize 30%</p></div>
-                      <div className="text-right font-black text-white"><p className="text-2xl">R$ 297,00</p><p className="text-[9px] opacity-70 uppercase">Pagamento Único</p></div>
-                   </div>
-                   <button className="w-full bg-white text-emerald-500 py-4 rounded-3xl font-black uppercase text-[10px] shadow-xl">Garantir Desconto</button>
-                </div>
-
-                <div className="bg-slate-900 p-8 rounded-[45px] border-2 border-emerald-500/30 shadow-2xl relative overflow-hidden active:scale-[0.98] transition-all">
-                   <div className="flex justify-between items-start mb-5">
-                      <div><h3 className="text-xl font-black uppercase text-emerald-500">Vitalício</h3><p className="text-slate-500 text-[10px] font-bold uppercase">Oportunidade Única</p></div>
-                      <div className="text-right font-black"><p className="text-emerald-500 text-2xl">R$ 697,00</p><p className="text-[9px] text-slate-500 uppercase">Nunca mais pague</p></div>
-                   </div>
-                   <button className="w-full bg-emerald-500 text-white py-4 rounded-3xl font-black uppercase text-[10px] shadow-2xl">Ser Membro Diamond</button>
-                </div>
-             </div>
-          </div>
-        )}
-
-        {(view === 'contract' || view === 'receipt' || view === 'items') && (
-           /* ... resto das views mantidas iguais para funcionalidade total ... */
-           <div className="space-y-4 animate-in fade-in text-slate-900">
-             <div className="bg-white rounded-[40px] p-8 shadow-sm space-y-4">
-                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Orçamento Detalhado</h2>
-                {items.map(item => (
-                  <div key={item.id} className="flex gap-3 items-center bg-slate-50 p-3 rounded-3xl border border-slate-100 shadow-sm">
-                    <div className={`w-2 h-10 rounded-full ${item.type === 'mat' ? 'bg-blue-400' : 'bg-emerald-500'}`}></div>
-                    <input placeholder="Item" value={item.desc} onChange={e => setItems(items.map(i => i.id === item.id ? {...i, desc: e.target.value} : i))} className="flex-1 bg-transparent outline-none text-[16px] font-bold text-slate-700" />
-                    <input type="number" value={item.price} onChange={e => setItems(items.map(i => i.id === item.id ? {...i, price: e.target.value} : i))} className="w-24 bg-white rounded-xl p-3 outline-none font-black text-[16px] border border-slate-200" />
-                  </div>
-                ))}
-                <button onClick={() => setView('home')} className="w-full bg-slate-900 text-white py-5 rounded-[30px] font-black uppercase text-xs">Voltar e Gerar Documento</button>
-             </div>
-           </div>
-        )}
       </main>
 
-      {/* MENU INFERIOR DIAMOND */}
       <nav className="shrink-0 bg-[#1E293B] border-t border-white/5 p-6 flex justify-around items-center z-[60] shadow-2xl">
         {[ { id: 'home', icon: Icons.Home, label: 'Painel' }, { id: 'items', icon: Icons.Money, label: 'Orçamentos' }, { id: 'premium', icon: Icons.Diamond, label: 'Planos' }, { id: 'contract', icon: Icons.Doc, label: 'Contrato' } ].map(n => (
-          <button key={n.id} onClick={() => setView(n.id)} className={`flex flex-col items-center gap-2 transition-all ${view === n.id ? 'text-emerald-500 scale-110' : 'text-slate-500'}`}>
-            <n.icon /><span className="text-[10px] font-black uppercase mt-1 tracking-tighter leading-none">{n.label}</span>
+          <button key={n.id} onClick={() => setView(n.id)} className={`flex flex-col items-center gap-2 ${view === n.id ? 'text-emerald-500' : 'text-slate-500'}`}>
+            <n.icon /><span className="text-[10px] font-black uppercase mt-1">{n.label}</span>
           </button>
         ))}
       </nav>
-
-      <style jsx>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-in { animation: fadeIn 0.4s ease-out forwards; }
-        input, textarea, select { font-size: 16px !important; border: 1px solid #F1F5F9 !important; border-radius: 20px !important; background: #F8FAFC !important; color: #0F172A !important; }
-        .custom-scroll::-webkit-scrollbar { display: none; }
-        input[type="range"] { -webkit-appearance: none; background: #334155; height: 10px; border-radius: 20px; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 35px; height: 35px; background: #10B981; border-radius: 50%; border: 8px solid #1E293B; box-shadow: 0 15px 35px rgba(0,0,0,0.6); cursor: pointer; }
-      `}</style>
     </div>
   );
 };
