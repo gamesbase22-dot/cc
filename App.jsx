@@ -207,6 +207,73 @@ const App = () => {
     doc.save(`contrato-canaa-${data.cliName || 'cliente'}.pdf`);
   };
 
+  // --- GERADOR DE PDF DO RECIBO ---
+  const generateReceiptPDF = () => {
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    let yPos = 20;
+
+    // Header
+    doc.setFillColor(59, 70, 133); // #3B4685 - Azul Médio
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(245, 158, 11);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CANAÃ PRO DIAMOND', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setTextColor(148, 163, 184);
+    doc.text('Recibo de Quitação', pageWidth / 2, 30, { align: 'center' });
+
+    // Receipt content
+    yPos = 60;
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RECIBO DE QUITAÇÃO', pageWidth / 2, yPos, { align: 'center' });
+
+    yPos += 15;
+    doc.setFontSize(20);
+    doc.setTextColor(217, 119, 6);
+    doc.text(BRL(totals.pix), pageWidth / 2, yPos, { align: 'center' });
+
+    yPos += 20;
+    doc.setFontSize(11);
+    doc.setTextColor(30, 41, 59);
+    doc.setFont('helvetica', 'normal');
+
+    const receiptText = `Declaramos ter recebido de ${data.cliName || 'CONTRATANTE'} o valor integral de ${BRL(totals.pix)} referente aos serviços de ${data.title || 'Execução Profissional'} realizados em ${data.city || 'Cotia'}.`;
+    const splitText = doc.splitTextToSize(receiptText, pageWidth - (margin * 2));
+    doc.text(splitText, margin, yPos);
+
+    // Date
+    yPos += splitText.length * 8 + 20;
+    const today = new Date().toLocaleDateString('pt-BR');
+    doc.setFontSize(10);
+    doc.text(`${data.city || 'Cotia'}, ${today}`, pageWidth / 2, yPos, { align: 'center' });
+
+    // Signature
+    yPos += 30;
+    doc.setDrawColor(217, 119, 6);
+    doc.setLineWidth(0.5);
+
+    if (sigPro) {
+      doc.addImage(sigPro, 'PNG', pageWidth / 2 - 30, yPos, 60, 20);
+    }
+    doc.line(pageWidth / 2 - 40, yPos + 25, pageWidth / 2 + 40, yPos + 25);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(data.proName || 'A CONTRATADA', pageWidth / 2, yPos + 30, { align: 'center' });
+
+    // Save PDF
+    doc.save(`recibo-canaa-${data.cliName || 'cliente'}.pdf`);
+
+    // Open WhatsApp after generating PDF
+    setTimeout(() => {
+      window.open(`https://wa.me/?text=${encodeURIComponent(`*RECIBO OFICIAL CANAÃ PRO*\n\nQuitação integral de ${BRL(totals.pix)} para ${data.title}\n\nPDF do recibo foi gerado e salvo automaticamente.`)}`, '_blank');
+    }, 500);
+  };
+
   return (
     <div className="fixed inset-0 flex flex-col bg-[#0F172A] text-[#FEF3C7] overflow-hidden font-sans select-none border-t-[6px] border-[#D97706]">
 
@@ -329,7 +396,7 @@ const App = () => {
                 </div>
               </div>
             </div>
-            <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("*RECIBO OFICIAL CANAÃ PRO*\n\nQuitação integral de " + BRL(totals.pix) + " para " + data.title)}`, '_blank')} className="w-full bg-[#25D366] text-white py-3 md:py-5 rounded-[40px] font-black text-xs md:text-sm uppercase flex items-center justify-center gap-2 md:gap-4 shadow-2xl active:scale-95 transition-all"><Icons.Zap /> Enviar Comprovante no WhatsApp</button>
+            <button onClick={generateReceiptPDF} className="w-full bg-[#25D366] text-white py-3 rounded-[25px] font-black text-xs uppercase flex items-center justify-center gap-2 shadow-2xl active:scale-95 transition-all"><Icons.Zap /> Gerar PDF e Enviar WhatsApp</button>
           </div>
         )}
 
