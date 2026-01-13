@@ -121,7 +121,7 @@ const App = () => {
   // --- CONTRATO DINÂMICO ---
   useEffect(() => {
     if (!sigCli && !sigPro) {
-      setContractText(`INSTRUMENTO PARTICULAR DE PRESTAÇÃO DE SERVIÇOS\n\n1. PARTES:\nCONTRATADA: ${data.proName || '____________'}, Doc: ${data.proDoc || '____________'}.\nCONTRATANTE: ${data.cliName || '____________'}, Doc: ${data.cliDoc || '____________'}.\n\n2. OBJETO: Execução técnica de: ${data.title || 'Serviços'}. \nDETALHAMENTO: ${data.details || 'Conforme acordado.'}.\n\n3. PAGAMENTO: Valor à vista de ${BRL(totals.pix)}. Ou parcelado no cartão em ${installments}x de ${BRL(totals.perMonth)} (Total: ${BRL(totals.cardTotal)}).\n\n4. RESPONSABILIDADES\n• Prestador: Qualidade técnica e uso de equipamentos de segurança (EPI).\n• Cliente: Fornecer materiais e livre acesso ao local.\n\n5. CANCELAMENTO E MULTA (Art. 603 CC)\n• Se o CLIENTE cancelar sem justa causa, paga o serviço feito + 50% do valor restante.\n• Se o PRESTADOR abandonar o serviço, responde por perdas e danos.\n• Multa de 10% do total para qualquer descumprimento de cláusula.\n\n6. GARANTIA\n• Construção/Estrutural: 5 anos (Art. 618 Código Civil).\n• Reparos/Limpeza: 90 dias (Código de Defesa do Consumidor).\n\n7. ACEITE DIGITAL: Validado conforme MP 2.200-2/2001.`);
+      setContractText(`INSTRUMENTO PARTICULAR DE PRESTAÇÃO DE SERVIÇOS\n\n1. PARTES:\nCONTRATADA: ${data.proName || '____________'}, Doc: ${data.proDoc || '____________'}.\nCONTRATANTE: ${data.cliName || '____________'}, Doc: ${data.cliDoc || '____________'}.\n\n2. OBJETO: Execução técnica de: ${data.title || 'Serviços'}. \nDETALHAMENTO: ${data.details || 'Conforme acordado.'}.\n\n3. PAGAMENTO: Valor à vista de ${BRL(totals.pix)}. Ou parcelado no cartão em ${installments}x de ${BRL(totals.perMonth)} (Total: ${BRL(totals.cardTotal)}).\n\n4. RESPONSABILIDADES\n• Prestador: Qualidade técnica e uso de equipamentos de segurança (EPI).\n• Cliente: Fornecer materiais e livre acesso ao local.\n\n5. GARANTIA\n• Construção/Estrutural: 5 anos (Art. 618 Código Civil).\n• Reparos/Limpeza: 90 dias (Código de Defesa do Consumidor).\n\n6. ACEITE DIGITAL: Validado conforme MP 2.200-2/2001.`);
     }
   }, [data, totals, installments]);
 
@@ -150,7 +150,7 @@ const App = () => {
     let yPos = 20;
 
     // Header
-    doc.setFillColor(15, 23, 42); // #0F172A - Azul Safira Imperial
+    doc.setFillColor(59, 70, 133); // #3B4685 - Azul Médio
     doc.rect(0, 0, pageWidth, 40, 'F');
     doc.setTextColor(245, 158, 11);
     doc.setFontSize(24);
@@ -230,32 +230,32 @@ const App = () => {
         {view === 'home' && (
           <div className="space-y-6 animate-in fade-in">
             {/* PAINEL COLHEITA */}
-            <div className="bg-gradient-to-b from-[#1E293B] to-[#0F172A] border border-[#D97706]/40 rounded-[50px] p-10 text-white shadow-2xl relative overflow-hidden text-center text-center">
+            <div className="bg-gradient-to-b from-[#1E293B] to-[#0F172A] border border-[#D97706]/40 rounded-[30px] p-6 text-white shadow-2xl relative overflow-hidden text-center">
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#D97706]/10 blur-[60px] rounded-full"></div>
-              <p className="text-[10px] font-black text-[#F59E0B] uppercase tracking-[0.5em] mb-4">Prosperidade Líquida</p>
-              <h2 className="text-6xl font-black text-emerald-400 tracking-tighter mb-10 drop-shadow-lg">{BRL(totals.lucro)}</h2>
-              <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-8 font-black">
+              <p className="text-[9px] font-black text-[#F59E0B] uppercase tracking-[0.3em] mb-3">Prosperidade Líquida</p>
+              <h2 className="text-4xl font-black text-emerald-400 tracking-tighter mb-6 drop-shadow-lg">{BRL(totals.lucro)}</h2>
+              <div className="grid grid-cols-2 gap-3 border-t border-white/5 pt-5 font-black text-sm">
                 <div><p className="text-[8px] font-bold text-slate-500 uppercase mb-1">Proteção</p><span className="text-[#F59E0B]">{BRL(totals.multa)}</span></div>
                 <div><p className="text-[8px] font-bold text-slate-500 uppercase mb-1">Valor Pix</p><span className="text-[#F59E0B]">{BRL(totals.pix)}</span></div>
               </div>
             </div>
 
             {/* MARGEM DE OURO */}
-            <div className="bg-white/5 rounded-[40px] p-8 border border-[#D97706]/20 shadow-2xl space-y-6 text-center">
+            <div className="bg-white/5 rounded-[25px] p-5 border border-[#D97706]/20 shadow-2xl space-y-4 text-center">
               <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Markup de Canaã: <span className="text-[#F59E0B]">{data.margin}%</span></h2>
               <input type="range" min="0" max="100" value={data.margin} onChange={e => setData({ ...data, margin: e.target.value })} className="w-full h-1.5 accent-[#D97706]" />
             </div>
 
             {/* FORMULÁRIO */}
-            <div className="bg-white/10 border border-white/5 rounded-[45px] p-8 shadow-2xl space-y-5">
-              <input placeholder="Título do Serviço Profissional" value={data.title} onChange={e => setData({ ...data, title: e.target.value })} className="w-full p-5 bg-white/5 text-white border border-white/10 rounded-2xl outline-none font-bold text-[16px] focus:border-[#D97706]/50" />
-              <textarea placeholder="Descrição Detalhada do Serviço (Isso vai para o contrato)..." value={data.details} onChange={e => setData({ ...data, details: e.target.value })} className="w-full p-5 bg-white/5 text-white border border-white/10 rounded-2xl outline-none text-[16px] focus:border-[#D97706]/50" rows="3" />
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <input placeholder="Seu Nome" value={data.proName} onChange={e => setData({ ...data, proName: e.target.value })} className="p-4 bg-white/5 text-white border border-white/10 rounded-xl outline-none text-[16px]" />
-                <input placeholder="Cliente" value={data.cliName} onChange={e => setData({ ...data, cliName: e.target.value })} className="p-4 bg-white/5 text-white border border-white/10 rounded-xl outline-none text-[16px]" />
+            <div className="bg-white/10 border border-white/5 rounded-[30px] p-5 shadow-2xl space-y-4">
+              <input placeholder="Título do Serviço Profissional" value={data.title} onChange={e => setData({ ...data, title: e.target.value })} className="w-full p-3 bg-white/5 text-white border border-white/10 rounded-xl outline-none font-bold text-[14px] focus:border-[#D97706]/50" />
+              <textarea placeholder="Descrição Detalhada do Serviço (Isso vai para o contrato)..." value={data.details} onChange={e => setData({ ...data, details: e.target.value })} className="w-full p-3 bg-white/5 text-white border border-white/10 rounded-xl outline-none text-[14px] focus:border-[#D97706]/50" rows="3" />
+              <div className="grid grid-cols-2 gap-3">
+                <input placeholder="Seu Nome" value={data.proName} onChange={e => setData({ ...data, proName: e.target.value })} className="p-3 bg-white/5 text-white border border-white/10 rounded-xl outline-none text-[14px]" />
+                <input placeholder="Cliente" value={data.cliName} onChange={e => setData({ ...data, cliName: e.target.value })} className="p-3 bg-white/5 text-white border border-white/10 rounded-xl outline-none text-[14px]" />
               </div>
             </div>
-            <button onClick={() => setView('card')} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-4 md:py-6 rounded-[35px] font-black text-sm md:text-lg shadow-2xl active:scale-95 transition-all uppercase">Avançar para Documentos</button>
+            <button onClick={() => setView('card')} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-3 rounded-[25px] font-black text-sm shadow-2xl active:scale-95 transition-all uppercase">Avançar para Documentos</button>
           </div>
         )}
 
