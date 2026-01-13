@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import jsPDF from 'jspdf';
 
@@ -37,6 +37,14 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [view, setView] = useState('home');
   const [syncStatus, setSyncStatus] = useState('online');
+  const [authScreen, setAuthScreen] = useState('login'); // 'login' ou 'signup'
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+
+  // Login/Signup form states
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // --- DADOS DO NEGÓCIO ---
   const [installments, setInstallments] = useState(6);
@@ -56,12 +64,86 @@ const App = () => {
   const canvasRef = useRef(null);
   const isDrawing = useRef(false);
 
-  // --- 1. FIREBASE AUTH (CONEXÃO SILENCIOSA) ---
+  // --- 1. FIREBASE AUTH (LISTENER) ---
   useEffect(() => {
-    signInAnonymously(auth).catch(e => console.error("Auth Fail:", e));
-    const unsubscribe = onAuthStateChanged(auth, setUser);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        setView('home'); // Redirect to dashboard when logged in
+      }
+    });
     return () => unsubscribe();
   }, []);
+
+  // --- AUTHENTICATION FUNCTIONS ---
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthLoading(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      setEmail('');
+      setPassword('');
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        setAuthError('Usuário não encontrado');
+      } else if (error.code === 'auth/wrong-password') {
+        setAuthError('Senha incorreta');
+      } else if (error.code === 'auth/invalid-email') {
+        setAuthError('Email inválido');
+      } else {
+        setAuthError('Erro ao fazer login. Tente novamente.');
+      }
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+
+    if (password !== confirmPassword) {
+      setAuthError('As senhas não coincidem');
+      return;
+    }
+
+    if (password.length < 6) {
+      setAuthError('A senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+
+    setAuthLoading(true);
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      if (error.code === 'auth/email-already-in-use') {
+        setAuthError('Este email já está em uso');
+      } else if (error.code === 'auth/invalid-email') {
+        setAuthError('Email inválido');
+      } else if (error.code === 'auth/weak-password') {
+        setAuthError('Senha muito fraca');
+      } else {
+        setAuthError('Erro ao criar conta. Tente novamente.');
+      }
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setView('home');
+    } catch (error) {
+      console.error('Erro ao sair:', error);
+    }
+  };
 
   // --- 2. BUSCA DE DADOS (ISOLAMENTO POR UID) ---
   useEffect(() => {
@@ -274,6 +356,142 @@ const App = () => {
     }, 500);
   };
 
+  // --- LOGIN/SIGNUP SCREENS ---
+  if (!user) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-[#0F172A] via-[#1E3A8A] to-[#0F172A] p-4">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <div className="bg-gradient-to-br from-[#F59E0B] via-[#D97706] to-[#B45309] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-black shadow-[0_0_40px_rgba(217,119,6,0.5)]">
+              <Icons.Diamond />
+            </div>
+            <h1 className="text-3xl font-black uppercase tracking-tight text-white">
+              CANAÃ <span className="text-[#F59E0B]">PRO</span> DIAMOND
+            </h1>
+            <p className="text-slate-400 text-sm mt-2">Gestão Profissional de Contratos</p>
+          </div>
+
+          {/* Auth Form */}
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-[40px] p-8 shadow-2xl">
+            {/* Tab Selector */}
+            <div className="flex gap-2 mb-6 bg-black/30 p-1 rounded-2xl">
+              <button
+                onClick={() => { setAuthScreen('login'); setAuthError(''); }}
+                className={`flex-1 py-3 rounded-xl font-black text-sm uppercase transition-all ${authScreen === 'login'
+                  ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black shadow-lg'
+                  : 'text-slate-400'
+                  }`}
+              >
+                Login
+              </button>
+              <button
+                onClick={() => { setAuthScreen('signup'); setAuthError(''); }}
+                className={`flex-1 py-3 rounded-xl font-black text-sm uppercase transition-all ${authScreen === 'signup'
+                  ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black shadow-lg'
+                  : 'text-slate-400'
+                  }`}
+              >
+                Cadastro
+              </button>
+            </div>
+
+            {/* Error Message */}
+            {authError && (
+              <div className="bg-rose-500/20 border border-rose-500 text-rose-200 px-4 py-3 rounded-2xl mb-4 text-sm font-bold">
+                {authError}
+              </div>
+            )}
+
+            {/* Login Form */}
+            {authScreen === 'login' ? (
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-black text-slate-300 uppercase mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="seuemail@exemplo.com"
+                    className="w-full p-4 bg-white/10 text-white border border-white/20 rounded-2xl outline-none font-bold text-sm focus:border-[#D97706] transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-300 uppercase mb-2">Senha</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="••••••••"
+                    className="w-full p-4 bg-white/10 text-white border border-white/20 rounded-2xl outline-none font-bold text-sm focus:border-[#D97706] transition-all"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-4 rounded-2xl font-black text-sm uppercase shadow-2xl active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {authLoading ? 'Entrando...' : 'Entrar'}
+                </button>
+              </form>
+            ) : (
+              /* Signup Form */
+              <form onSubmit={handleSignup} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-black text-slate-300 uppercase mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="seuemail@exemplo.com"
+                    className="w-full p-4 bg-white/10 text-white border border-white/20 rounded-2xl outline-none font-bold text-sm focus:border-[#D97706] transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-300 uppercase mb-2">Senha</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="Mínimo 6 caracteres"
+                    className="w-full p-4 bg-white/10 text-white border border-white/20 rounded-2xl outline-none font-bold text-sm focus:border-[#D97706] transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-300 uppercase mb-2">Confirmar Senha</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    placeholder="Digite a senha novamente"
+                    className="w-full p-4 bg-white/10 text-white border border-white/20 rounded-2xl outline-none font-bold text-sm focus:border-[#D97706] transition-all"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-4 rounded-2xl font-black text-sm uppercase shadow-2xl active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {authLoading ? 'Criando conta...' : 'Criar Conta'}
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* Footer */}
+          <p className="text-center text-slate-500 text-xs mt-6 font-bold">
+            © 2026 Canaã Pro Diamond - Todos os direitos reservados
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 flex flex-col bg-[#0F172A] text-[#FEF3C7] overflow-hidden font-sans select-none border-t-[6px] border-[#D97706]">
 
@@ -285,11 +503,16 @@ const App = () => {
             <h1 className="text-base font-black uppercase tracking-tight text-white leading-none">CANAÃ <span className="text-[#F59E0B]">PRO</span> DIAMOND</h1>
             <div className="flex items-center gap-1.5 mt-1">
               <div className={`w-1.5 h-1.5 rounded-full ${syncStatus === 'saving' ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`}></div>
-              <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest leading-none">Conectado: naaa-9e9ee</p>
+              <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest leading-none">Conectado: {user?.email}</p>
             </div>
           </div>
         </div>
-        <div className="bg-[#D97706]/10 text-[#F59E0B] px-4 py-1.5 rounded-full text-[9px] font-black border border-[#D97706]/30 uppercase tracking-widest">Diamond</div>
+        <button
+          onClick={handleLogout}
+          className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 px-4 py-1.5 rounded-full text-[9px] font-black border border-rose-500/30 uppercase tracking-widest transition-all active:scale-95"
+        >
+          Sair
+        </button>
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-32 custom-scroll bg-gradient-to-b from-[#0F172A] to-[#1E3A8A]">
@@ -327,50 +550,90 @@ const App = () => {
         )}
 
         {view === 'card' && (
-          <div className="space-y-6 animate-in fade-in text-center pb-10">
-            <div className="bg-white rounded-[50px] p-8 text-slate-900 shadow-2xl border border-white/20">
-              <h2 className="text-[10px] font-black text-[#D97706] uppercase tracking-widest mb-6">Taxas de Maquininha</h2>
-              <div className="grid grid-cols-2 gap-3 mb-8">
-                <button onClick={() => setCardBrand('visa')} className={`p-5 rounded-[30px] border-2 font-black transition-all ${cardBrand === 'visa' ? 'border-[#D97706] bg-[#D97706] text-black shadow-xl' : 'border-slate-100 bg-slate-50 text-slate-400'}`}>VISA / MASTER</button>
-                <button onClick={() => setCardBrand('elo')} className={`p-5 rounded-[30px] border-2 font-black transition-all ${cardBrand === 'elo' ? 'border-[#D97706] bg-[#D97706] text-black shadow-xl' : 'border-slate-100 bg-slate-50 text-slate-400'}`}>ELO / OUTROS</button>
+          <div className="space-y-4 animate-in fade-in text-center pb-10 max-w-md mx-auto">
+            <div className="bg-white rounded-[30px] p-5 text-slate-900 shadow-2xl border border-white/20">
+              <h2 className="text-xs font-black text-[#D97706] uppercase tracking-widest mb-4">Taxas de Maquininha</h2>
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <button onClick={() => setCardBrand('visa')} className={`p-3 rounded-2xl border-2 font-black text-xs transition-all ${cardBrand === 'visa' ? 'border-[#D97706] bg-[#D97706] text-white shadow-xl' : 'border-slate-200 bg-slate-50 text-slate-600'}`}>VISA / MASTER</button>
+                <button onClick={() => setCardBrand('elo')} className={`p-3 rounded-2xl border-2 font-black text-xs transition-all ${cardBrand === 'elo' ? 'border-[#D97706] bg-[#D97706] text-white shadow-xl' : 'border-slate-200 bg-slate-50 text-slate-600'}`}>ELO / OUTROS</button>
               </div>
-              <div className="bg-[#0F172A] p-10 rounded-[60px] text-white shadow-2xl space-y-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-emerald-500 px-4 py-1 text-[8px] font-black uppercase rounded-bl-2xl">Juros {cardBrand.toUpperCase()}</div>
-                <span className="bg-amber-500 text-black px-4 py-1.5 rounded-full font-black text-[14px]">{installments}x Parcelas</span>
+              <div className="bg-[#0F172A] p-5 rounded-3xl text-white shadow-2xl space-y-4 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-emerald-500 px-3 py-1 text-[8px] font-black uppercase rounded-bl-xl text-white">Juros {cardBrand.toUpperCase()}</div>
+                <span className="bg-amber-500 text-black px-3 py-1 rounded-full font-black text-xs inline-block">{installments}x Parcelas</span>
                 <input type="range" min="1" max="12" value={installments} onChange={e => setInstallments(parseInt(e.target.value))} className="w-full h-1.5 accent-amber-500" />
-                <h3 className="text-5xl font-black tracking-tighter text-[#FDE68A]">{BRL(totals.perMonth)}</h3>
-                <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-6 text-[10px] font-black uppercase text-left">
-                  <div><p className="text-slate-500">Total Cartão</p><p className="text-white text-sm">{BRL(totals.cardTotal)}</p></div>
-                  <div className="text-right"><p className="text-slate-500">Taxa Banco</p><p className="text-rose-400 text-sm">{totals.taxaPercent.toFixed(1)}%</p></div>
+                <h3 className="text-3xl font-black tracking-tighter text-[#FDE68A]">{BRL(totals.perMonth)}</h3>
+                <div className="grid grid-cols-2 gap-3 border-t border-white/10 pt-4 text-[10px] font-black uppercase">
+                  <div className="text-left"><p className="text-slate-400">Total Cartão</p><p className="text-white text-sm mt-1">{BRL(totals.cardTotal)}</p></div>
+                  <div className="text-right"><p className="text-slate-400">Taxa Banco</p><p className="text-rose-400 text-sm mt-1">{totals.taxaPercent.toFixed(1)}%</p></div>
                 </div>
               </div>
             </div>
-            <button onClick={() => setView('contract')} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-4 md:py-6 rounded-[35px] font-black text-sm md:text-base uppercase shadow-2xl">Gerar Documentos</button>
+            <button onClick={() => setView('contract')} className="w-full bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-black py-3 rounded-3xl font-black text-sm uppercase shadow-2xl active:scale-95 transition-all">Gerar Documentos</button>
           </div>
         )}
 
         {view === 'planos' && (
-          <div className="space-y-6 animate-in zoom-in pb-10 text-center">
-            <div className="bg-gradient-to-br from-[#F59E0B] to-[#B45309] w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-black border-4 border-black shadow-[0_0_40px_rgba(217,119,6,0.3)]">
+          <div className="space-y-6 animate-in zoom-in pb-10 text-center max-w-lg mx-auto">
+            <div className="bg-gradient-to-br from-[#F59E0B] to-[#B45309] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-white border-4 border-black shadow-[0_0_40px_rgba(217,119,6,0.3)]">
               <Icons.Diamond />
             </div>
-            <h2 className="text-4xl font-black uppercase tracking-tighter text-white">Prosperidade em <span className="text-[#D97706]">Canaã</span></h2>
-            <div className="space-y-5 mt-8">
-              <div className="bg-white/5 border border-white/10 p-8 rounded-[50px] flex justify-between items-center text-white">
-                <div><h3 className="text-xl font-black uppercase">Mensal</h3><p className="text-slate-500 text-[9px] font-bold mt-2 text-left">Menos de R$ 1/dia</p></div>
-                <div className="text-right font-black text-[#D97706] text-3xl">R$ 27,90</div>
-              </div>
-              <div className="bg-gradient-to-br from-[#F59E0B] via-[#D97706] to-[#B45309] p-12 rounded-[60px] shadow-2xl relative overflow-hidden text-black border-4 border-black/20">
-                <div className="absolute top-0 right-0 bg-black text-[#F59E0B] px-6 py-2 text-[10px] font-black uppercase rounded-bl-[30px]">Recomendado</div>
-                <div className="flex justify-between items-center">
-                  <div><h3 className="text-3xl font-black uppercase leading-none">ANUAL</h3><p className="text-black/60 text-[10px] font-bold mt-3 text-left">Colheita Garantida</p></div>
-                  <div className="text-right font-black text-5xl">R$ 197</div>
+            <h2 className="text-3xl font-black uppercase tracking-tighter text-white">Prosperidade em <span className="text-[#F59E0B]">Canaã</span></h2>
+            <p className="text-slate-400 text-sm px-4">Escolha o plano ideal para seu negócio e comece a prosperar hoje</p>
+
+            {/* Benefícios */}
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 text-left space-y-3">
+              <h3 className="text-sm font-black text-[#F59E0B] uppercase tracking-wide text-center mb-4">✨ Benefícios Inclusos</h3>
+              <div className="space-y-2 text-xs font-bold text-white">
+                <div className="flex items-start gap-3">
+                  <span className="text-emerald-400 text-lg">✓</span>
+                  <span>Contratos profissionais ilimitados</span>
                 </div>
-                <button className="w-full bg-black text-[#F59E0B] py-5 rounded-[25px] font-black uppercase text-xs mt-10 shadow-2xl">Assinar Agora</button>
+                <div className="flex items-start gap-3">
+                  <span className="text-emerald-400 text-lg">✓</span>
+                  <span>Recibos com validade jurídica</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-emerald-400 text-lg">✓</span>
+                  <span>Cálculo automático de impostos e taxas</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-emerald-400 text-lg">✓</span>
+                  <span>Sincronização em nuvem (Firebase)</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-emerald-400 text-lg">✓</span>
+                  <span>Geração de PDF profissional</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-emerald-400 text-lg">✓</span>
+                  <span>Integração com WhatsApp</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-emerald-400 text-lg">✓</span>
+                  <span>Suporte prioritário</span>
+                </div>
               </div>
-              <div className="bg-black/50 border-2 border-[#D97706]/40 p-8 rounded-[50px] flex justify-between items-center text-[#F59E0B]">
-                <div><h3 className="text-xl font-black uppercase">Vitalício</h3><p className="text-slate-600 text-[9px] font-bold mt-2 text-left">Pague uma vez</p></div>
-                <div className="text-right font-black text-3xl">R$ 497</div>
+            </div>
+
+            <div className="space-y-4 mt-8">
+              <div className="bg-white/5 border border-white/10 p-6 rounded-3xl flex justify-between items-center text-white">
+                <div><h3 className="text-lg font-black uppercase text-white">Mensal</h3><p className="text-slate-400 text-xs font-bold mt-1 text-left">Menos de R$ 1/dia</p></div>
+                <div className="text-right font-black text-[#F59E0B] text-2xl">R$ 27,90</div>
+              </div>
+              <div className="bg-gradient-to-br from-[#F59E0B] via-[#D97706] to-[#B45309] p-8 rounded-3xl shadow-2xl relative overflow-hidden text-white border-4 border-black/20">
+                <div className="absolute top-0 right-0 bg-black text-[#F59E0B] px-4 py-1.5 text-[10px] font-black uppercase rounded-bl-2xl">⭐ Recomendado</div>
+                <div className="flex justify-between items-center">
+                  <div><h3 className="text-2xl font-black uppercase leading-none text-white">ANUAL</h3><p className="text-white/80 text-xs font-bold mt-2 text-left">Colheita Garantida</p></div>
+                  <div className="text-right font-black text-4xl text-white">R$ 197</div>
+                </div>
+                <div className="bg-black/30 rounded-2xl p-3 mt-4">
+                  <p className="text-xs font-bold text-white/90">💰 Economia de R$ 137 por ano</p>
+                </div>
+                <button className="w-full bg-black text-[#F59E0B] py-4 rounded-2xl font-black uppercase text-sm mt-6 shadow-2xl active:scale-95 transition-all">Assinar Agora</button>
+              </div>
+              <div className="bg-black/50 border-2 border-[#D97706]/40 p-6 rounded-3xl flex justify-between items-center text-[#F59E0B]">
+                <div><h3 className="text-lg font-black uppercase text-[#F59E0B]">Vitalício</h3><p className="text-slate-400 text-xs font-bold mt-1 text-left">Pague uma vez</p></div>
+                <div className="text-right font-black text-2xl text-[#F59E0B]">R$ 497</div>
               </div>
             </div>
           </div>
