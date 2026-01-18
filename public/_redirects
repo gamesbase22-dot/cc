@@ -1,0 +1,9 @@
+# Proxy API requests to Firebase Functions (Explicit Mappings for Kebab-case -> CamelCase)
+/api/create-payment  https://us-central1-naaa-9e9ee.cloudfunctions.net/createPayment  200
+/api/payment-status  https://us-central1-naaa-9e9ee.cloudfunctions.net/checkPaymentStatus  200
+
+# Fallback for any other API calls (if added later, assume matching names)
+/api/*  https://us-central1-naaa-9e9ee.cloudfunctions.net/:splat  200
+
+# SPA Catch-all for React Router
+/*  /index.html  200
