@@ -3,10 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Canaã Pro</title>
+    <title>Canaã Pro - Sistema Profissional de Orçamentos</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Sistema profissional de orçamentos, contratos e recibos com assinatura digital" />
+    <meta name="theme-color" content="#d97706" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Canaã Pro" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/icon-192x192.svg" />
+    <link rel="apple-touch-icon" href="/icon-apple-touch.svg" />
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('[PWA] Service Worker registered:', registration.scope);
+            })
+            .catch(error => {
+              console.log('[PWA] Service Worker registration failed:', error);
+            });
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+

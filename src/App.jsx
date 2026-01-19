@@ -108,6 +108,186 @@ const WhatsAppPreviewModal = ({ onClose, onConfirm, docType, documentId, data, f
   </div>
 );
 
+// --- PWA INSTALL PROMPT MODAL ---
+const PWAInstallPrompt = ({ onClose, platform }) => {
+  const isIOS = platform === 'ios';
+  const isAndroid = platform === 'android';
+
+  return (
+    <div className="fixed inset-0 bg-black/95 z-[999] flex items-center justify-center p-4 overflow-y-auto animate-in fade-in">
+      <div className="bg-gradient-to-b from-slate-800 to-slate-900 w-full max-w-md rounded-xl p-6 text-white border border-amber-500/30 shadow-2xl relative">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-white font-bold transition-all"
+        >
+          ✕
+        </button>
+
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-black uppercase tracking-tight">Instalar App</h2>
+          <p className="text-sm text-slate-400 mt-2">Use o Canaã Pro como aplicativo nativo</p>
+        </div>
+
+        {/* Benefits */}
+        <div className="bg-black/40 p-4 rounded-lg mb-6 space-y-2">
+          <div className="flex items-center gap-3 text-sm">
+            <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-black">✓</div>
+            <span>Acesso rápido direto da tela inicial</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-black">✓</div>
+            <span>Funciona offline após instalação</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-black">✓</div>
+            <span>Experiência de app nativo</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-black">✓</div>
+            <span>Sem ocupar espaço de armazenamento</span>
+          </div>
+        </div>
+
+        {/* Platform Specific Instructions */}
+        {isIOS && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-5 mb-6">
+            <h3 className="text-amber-400 font-black text-sm uppercase mb-3 flex items-center gap-2">
+              <span>📱</span> Instruções para iPhone/iPad
+            </h3>
+            <ol className="space-y-3 text-sm">
+              <li className="flex gap-3">
+                <span className="font-black text-amber-400 min-w-[20px]">1.</span>
+                <span>Toque no botão <strong className="text-blue-400">Compartilhar</strong>
+                  <svg className="inline-block mx-1" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" />
+                  </svg> na barra inferior do Safari</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-black text-amber-400 min-w-[20px]">2.</span>
+                <span>Role para baixo e toque em <strong className="text-amber-400">"Adicionar à Tela de Início"</strong></span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-black text-amber-400 min-w-[20px]">3.</span>
+                <span>Toque em <strong className="text-emerald-400">"Adicionar"</strong> no canto superior direito</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-black text-amber-400 min-w-[20px]">4.</span>
+                <span>Pronto! O ícone do Canaã Pro aparecerá na sua tela inicial</span>
+              </li>
+            </ol>
+          </div>
+        )}
+
+        {isAndroid && (
+          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-5 mb-6">
+            <h3 className="text-emerald-400 font-black text-sm uppercase mb-3 flex items-center gap-2">
+              <span>🤖</span> Instruções para Android
+            </h3>
+            <ol className="space-y-3 text-sm">
+              <li className="flex gap-3">
+                <span className="font-black text-emerald-400 min-w-[20px]">1.</span>
+                <span>Toque nos <strong className="text-slate-300">três pontos</strong> (⋮) no canto superior direito do Chrome</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-black text-emerald-400 min-w-[20px]">2.</span>
+                <span>Selecione <strong className="text-amber-400">"Adicionar à tela inicial"</strong> ou <strong className="text-amber-400">"Instalar app"</strong></span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-black text-emerald-400 min-w-[20px]">3.</span>
+                <span>Confirme tocando em <strong className="text-emerald-400">"Adicionar"</strong> ou <strong className="text-emerald-400">"Instalar"</strong></span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-black text-emerald-400 min-w-[20px]">4.</span>
+                <span>Pronto! O ícone do Canaã Pro aparecerá na sua tela inicial</span>
+              </li>
+            </ol>
+          </div>
+        )}
+
+        {!isIOS && !isAndroid && (
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-5 mb-6">
+            <h3 className="text-blue-400 font-black text-sm uppercase mb-3 flex items-center gap-2">
+              <span>💻</span> Instruções para Desktop
+            </h3>
+            <ol className="space-y-3 text-sm">
+              <li className="flex gap-3">
+                <span className="font-black text-blue-400 min-w-[20px]">1.</span>
+                <span>Clique no ícone <strong className="text-slate-300">⊕</strong> ou <strong className="text-slate-300">🖥️</strong> na barra de endereços</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-black text-blue-400 min-w-[20px]">2.</span>
+                <span>Clique em <strong className="text-amber-400">"Instalar"</strong></span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-black text-blue-400 min-w-[20px]">3.</span>
+                <span>Pronto! O app abrirá em uma janela separada</span>
+              </li>
+            </ol>
+          </div>
+        )}
+
+        {/* Phone Mockup Visual */}
+        <div className="flex justify-center mb-6">
+          <div className="relative">
+            {/* Phone Frame */}
+            <div className="w-48 h-80 bg-black rounded-[2.5rem] border-8 border-slate-700 shadow-2xl relative overflow-hidden">
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-700 rounded-b-2xl z-10"></div>
+
+              {/* Screen */}
+              <div className="absolute inset-2 bg-gradient-to-b from-[#0F172A] to-[#1E3A8A] rounded-[1.8rem] overflow-hidden">
+                {/* Status Bar */}
+                <div className="h-8 bg-black/20 flex items-center justify-between px-4 text-white text-[8px] pt-2">
+                  <span>9:41</span>
+                  <div className="flex gap-1">
+                    <span>📶</span>
+                    <span>🔋</span>
+                  </div>
+                </div>
+
+                {/* App Icons Grid */}
+                <div className="p-4 pt-2 grid grid-cols-4 gap-3">
+                  {[...Array(12)].map((_, i) => (
+                    <div key={i} className={`rounded-xl ${i === 4 ? 'bg-gradient-to-br from-amber-500 to-amber-700 ring-2 ring-amber-400 scale-110' : 'bg-slate-600'} aspect-square flex items-center justify-center text-xs`}>
+                      {i === 4 && <span className="font-black text-black">CP</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Arrow Pointing to Icon */}
+            <div className="absolute -right-12 top-32 text-amber-400 text-4xl animate-pulse">
+              ←
+            </div>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <button
+          onClick={onClose}
+          className="w-full bg-amber-500 text-black py-4 rounded-lg font-black uppercase text-sm shadow-xl hover:bg-amber-400 active:scale-95 transition-all"
+        >
+          Entendi!
+        </button>
+
+        <p className="text-center text-xs text-slate-500 mt-4">
+          Este guia ficará disponível no menu superior
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const App = () => {
   const [bootReady, setBootReady] = useState(false);
   const [user, setUser] = useState(null);
@@ -122,6 +302,12 @@ const App = () => {
   const [isDocumentFrozen, setIsDocumentFrozen] = useState(false);
   const [showWhatsAppPreview, setShowWhatsAppPreview] = useState(false);
   const [sambaNovaApiKey, setSambaNovaApiKey] = useState("bb85231d-4b06-4d10-985b-c1aea421d926");
+
+  // --- PWA INSTALL PROMPT ---
+  const [showPWAPrompt, setShowPWAPrompt] = useState(false);
+  const [platform, setPlatform] = useState('desktop');
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
 
   // --- AUTH STATES ---
   const [email, setEmail] = useState("");
@@ -336,12 +522,51 @@ const App = () => {
             // Ordenar por data mais recente
             docs.sort((a, b) => b.createdAt?.toDate() - a.createdAt?.toDate());
             setDocumentHistory(docs);
-          });
+          }); \r
         }
         setBootReady(true);
       });
     };
     startup();
+
+    // --- PWA PLATFORM DETECTION AND INSTALL PROMPT HANDLING ---
+    // Detect platform
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+      setPlatform('ios');
+    } else if (/android/i.test(userAgent)) {
+      setPlatform('android');
+    } else {
+      setPlatform('desktop');
+    }
+
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      setIsAppInstalled(true);
+    }
+
+    // Listen for beforeinstallprompt event (Chrome/Android)
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      console.log('[PWA] Install prompt ready');
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Listen for app installed event
+    const handleAppInstalled = () => {
+      setIsAppInstalled(true);
+      setShowPWAPrompt(false);
+      console.log('[PWA] App installed successfully');
+    };
+
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
   }, []);
 
   // === GEMINI AI API INTEGRATION ===
@@ -385,20 +610,20 @@ Retorne APENAS JSON valido. Estrutura EXATA em 2 blocos:
 
 {
   "block_1_client": {
-    "header": "PROPOSTA TECNICA E COMERCIAL\\nEmissao: DD/MM/AAAA | Ref: ID-XXXX",
+    "header": "PROPOSTA TECNICA E COMERCIALnEmissao: DD/MM/AAAA | Ref: ID-XXXX",
     "intro": "Olá! Segue o detalhamento formal...",
     "scope_title": "ESCOPO DO SERVICO:",
     "scope_details": "Descricao tecnica completa detalhada...",
-    "financial_table": "DESCRICAO | VALOR\\n1. Mao de Obra | RS X\\n2. Materiais | RS Y\\nTOTAL | RS Z",
-    "deadline": "CRONOGRAMA & PRAZOS:\\nEstimativa: X a Y dias/semanas...",
-    "protection_clauses": "CLAUSULAS DE PROTECAO:\\n * Clima: ...\\n * Solo: ...",
-    "payment": "CONDICOES DE PAGAMENTO:\\n * Entrada X% + ...",
-    "warranty": "GARANTIA LEGAL:\\n05 Anos... ou 90 dias...",
-    "footer": "Proposta valida por 07 dias.\\nAguardo seu De Acordo..."
+    "financial_table": "DESCRICAO | VALORn1. Mao de Obra | RS Xn2. Materiais | RS YnTOTAL | RS Z",
+    "deadline": "CRONOGRAMA & PRAZOS:nEstimativa: X a Y dias/semanas...",
+    "protection_clauses": "CLAUSULAS DE PROTECAO:n * Clima: ...n * Solo: ...",
+    "payment": "CONDICOES DE PAGAMENTO:n * Entrada X% + ...",
+    "warranty": "GARANTIA LEGAL:n05 Anos... ou 90 dias...",
+    "footer": "Proposta valida por 07 dias.nAguardo seu De Acordo..."
   },
   "block_2_professional": {
     "labor_calc": " * Base de Mão de Obra: ...",
-    "materials_breakdown": " * Lista de Materiais Deduzida:\\n   * Item 1\\n   * Item 2...",
+    "materials_breakdown": " * Lista de Materiais Deduzida:n   * Item 1n   * Item 2...",
     "critical_notes": "Observações técnicas críticas para execução..."
   },
   "whatsapp_summary": "Texto resumido para WhatsApp"
@@ -556,12 +781,12 @@ Retorne APENAS JSON valido. Estrutura EXATA em 2 blocos:
       let content = "";
       if (type === 'contract') content = buildContract();
       else if (type === 'receipt') content = buildReceipt();
-      
+
       setDocContent(content);
       setDocType(type);
       setIsDocumentFrozen(false);
       setView('viewer');
-      window.scrollTo(0,0);
+      window.scrollTo(0, 0);
     } catch (err) {
       console.error("Erro ao gerar documento:", err);
       alert("Erro ao construir o documento. Verifique os dados inseridos.");
@@ -605,12 +830,12 @@ Retorne APENAS JSON valido. Estrutura EXATA em 2 blocos:
       if (splitText[i].trim() === '[PAGE_BREAK]') {
         pdfDoc.addPage();
         drawPageHeader();
-        yPosition = 40; 
+        yPosition = 40;
         continue;
       }
 
       // Verificar se precisa de nova página automática por falta de espaço
-      if (yPosition > pageHeight - 40) { 
+      if (yPosition > pageHeight - 40) {
         pdfDoc.addPage();
         drawPageHeader();
         yPosition = 40; // Ajustado de 20 para 40 para não sobrepor o cabeçalho
@@ -805,6 +1030,13 @@ Retorne APENAS JSON valido. Estrutura EXATA em 2 blocos:
     }
 
     pdfDoc.save(`CanaaPro_${docType}_${Date.now()}.pdf`);
+    
+    // --- TRIGGER PWA INSTALL PROMPT AFTER PDF GENERATION ---
+    if (!isAppInstalled) {
+      setTimeout(() => {
+        setShowPWAPrompt(true);
+      }, 1500); // Show prompt 1.5s after PDF download
+    }
   };
 
   const buildContract = () => {
@@ -928,7 +1160,7 @@ Prestador: ${data.proName || '________________'}`;
     // RECURSO DIAMOND GRATUITO
     setLoadingIA(true);
     setTimeout(() => {
-      setDocContent(`PROPOSTA COMERCIAL TÉCNICA\\n\\nOBJETIVO: \\nExecução de ${data.title}.\\n\\nVALOR: \\n${BRL(finance.finalVal)} \\n\\n(Texto gerado automaticamente)`);
+      setDocContent(`PROPOSTA COMERCIAL TÉCNICAnnOBJETIVO: nExecução de ${data.title}.nnVALOR: n${BRL(finance.finalVal)} nn(Texto gerado automaticamente)`);
       setDocType('budget'); setView('viewer'); captureStamp(); setLoadingIA(false);
     }, 1500);
   };
@@ -948,11 +1180,11 @@ Prestador: ${data.proName || '________________'}`;
       const input = budgetInput.toLowerCase().trim();
       const today = new Date().toLocaleDateString('pt-BR');
       const refId = `ID-${input.substring(0, 2).toUpperCase()}-${Math.floor(Math.random() * 1000)}`;
-      
+
       // EXTRAIR DIMENSÕES
       const areaMatch = input.match(/(\d+)\s*m/);
       const area = areaMatch ? parseInt(areaMatch[1]) : 50;
-      
+
       // DETECTAR TIPO DE SERVIÇO
       let aiResponse;
       if (input.includes('piscina')) {
@@ -960,7 +1192,7 @@ Prestador: ${data.proName || '________________'}`;
         const laborCost = area * 900;
         const materialCost = area * 1200;
         const total = laborCost + materialCost;
-        
+
         aiResponse = {
           block_1_client: {
             header: `PROPOSTA TECNICA E COMERCIAL\nReferencia: ${refId}`,
@@ -988,7 +1220,7 @@ Prestador: ${data.proName || '________________'}`;
         const laborCost = area * 55;
         const materialCost = area * 45;
         const total = laborCost + materialCost;
-        
+
         aiResponse = {
           block_1_client: {
             header: `PROPOSTA TECNICA E COMERCIAL\nReferencia: ${refId}`,
@@ -1007,7 +1239,7 @@ Prestador: ${data.proName || '________________'}`;
             intro: "Estimativa de materiais para execucao:",
             strategy: `Estrategia: Sistema Drywall`,
             labor_calc: `Mao de Obra: RS 55 por m2`,
-            materials_breakdown: `• Chapas ST: ${Math.ceil((area/2.88)*1.1)} unidades\n• Perfis 48/70: Quantidade estimada\n• Parafusos GN25: Quantidade estimada\n• Massa Drywall: Quantidade estimada`,
+            materials_breakdown: `• Chapas ST: ${Math.ceil((area / 2.88) * 1.1)} unidades\n• Perfis 48/70: Quantidade estimada\n• Parafusos GN25: Quantidade estimada\n• Massa Drywall: Quantidade estimada`,
             critical_notes: "Nota: Nivel a laser obrigatorio para qualidade final."
           },
           whatsapp_summary: `DRYWALL ${area}m2\nValor: RS ${total.toFixed(2)}\nPrazo: 3-5 dias`
@@ -1017,7 +1249,7 @@ Prestador: ${data.proName || '________________'}`;
         const laborCost = area * (isExternal ? 35 : 25);
         const materialCost = area * (isExternal ? 20 : 15);
         const total = laborCost + materialCost;
-        
+
         aiResponse = {
           block_1_client: {
             header: `PROPOSTA TECNICA E COMERCIAL\nReferencia: ${refId}`,
@@ -1025,7 +1257,7 @@ Prestador: ${data.proName || '________________'}`;
             scope_title: "ESCOPO DO SERVICO:",
             scope_details: `Pintura ${isExternal ? 'Externa' : 'Interna'} em ${area}m2. Inclui preparacao de superficie com lixamento, aplicacao de selador e duas demaos de tinta de qualidade.`,
             financial_table: `VALOR TOTAL DO INVESTIMENTO: RS ${total.toFixed(2)}`,
-            deadline: `Estimativa de ${Math.ceil(area/25)} dias uteis trabalhaveis.`,
+            deadline: `Estimativa de ${Math.ceil(area / 25)} dias uteis trabalhaveis.`,
             protection_clauses: `CLAUSULAS DE SEGURANCA:\n1. CLIMA: O prazo considera condicoes favoraveis. Chuvas impedem a pintura externa.\n2. INSUMOS: Materiais em falta pausam o cronograma.`,
             payment: "PAGAMENTO:\nEntrada de 50 por cento e 50 por cento na conclusao do servico.",
             warranty: "GARANTIA:\n90 dias conforme Lei 8078/90.",
@@ -1045,7 +1277,7 @@ Prestador: ${data.proName || '________________'}`;
         const laborCost = area * 45;
         const materialCost = area * 90;
         const total = laborCost + materialCost;
-        
+
         aiResponse = {
           block_1_client: {
             header: `PROPOSTA TECNICA E COMERCIAL\nReferencia: ${refId}`,
@@ -1053,7 +1285,7 @@ Prestador: ${data.proName || '________________'}`;
             scope_title: "ESCOPO DO SERVICO:",
             scope_details: `Assentamento de piso em ${area}m2. Para porcelanatos grandes, aplicamos sobretaxa de mao de obra e exigimos argamassa AC3. Inclui preparacao de base e rejuntamento.`,
             financial_table: `VALOR TOTAL DO INVESTIMENTO: RS ${total.toFixed(2)}`,
-            deadline: `Estimativa de ${Math.ceil(area/17)} dias uteis trabalhaveis.`,
+            deadline: `Estimativa de ${Math.ceil(area / 17)} dias uteis trabalhaveis.`,
             protection_clauses: `CLAUSULAS DE SEGURANCA:\n1. CLIMA: O prazo considera area protegida ou tempo seco.\n2. INSUMOS: Atraso de materiais pausa o prazo.`,
             payment: "PAGAMENTO:\nEntrada de 50 por cento e 50 por cento na conclusao do servico.",
             warranty: "GARANTIA:\n90 dias conforme Lei 8078/90.",
@@ -1074,7 +1306,7 @@ Prestador: ${data.proName || '________________'}`;
         const total = cubBase * 1.42;
         const laborPortion = total * 0.4;
         const materialPortion = total * 0.6;
-        
+
         aiResponse = {
           block_1_client: {
             header: `PROPOSTA TECNICA E COMERCIAL\nReferencia: ${refId}`,
@@ -1082,7 +1314,7 @@ Prestador: ${data.proName || '________________'}`;
             scope_title: "ESCOPO DO SERVICO:",
             scope_details: `Construcao de imovel com ${area}m2 em regime chave na mao. Inclui fundacao, alvenaria, cobertura, instalacoes eletricas, hidraulicas e acabamentos basicos.`,
             financial_table: `VALOR TOTAL DO INVESTIMENTO: RS ${total.toFixed(2)}`,
-            deadline: `Estimativa de ${Math.ceil(area/4)} meses uteis trabalhaveis.`,
+            deadline: `Estimativa de ${Math.ceil(area / 4)} meses uteis trabalhaveis.`,
             protection_clauses: `CLAUSULAS DE SEGURANCA:\n1. CLIMA: Chuvas prolongadas prorrogam o cronograma.\n2. INSUMOS: Burocracia ou falta de materiais pausam o prazo.`,
             payment: "PAGAMENTO:\nMedicoes mensais conforme cronograma de obra.",
             warranty: "GARANTIA:\n05 anos para solidez estrutural conforme Codigo Civil.",
@@ -1103,7 +1335,7 @@ Prestador: ${data.proName || '________________'}`;
         const laborCost = area * 80;
         const materialCost = area * 60;
         const total = laborCost + materialCost;
-        
+
         aiResponse = {
           block_1_client: {
             header: `PROPOSTA TECNICA E COMERCIAL\nReferencia: ${refId}`,
@@ -1132,7 +1364,7 @@ Prestador: ${data.proName || '________________'}`;
       // CONSTRUIR DOCUMENTO FORMATADO COM BLOCOS
       const block1 = aiResponse.block_1_client;
       const block2 = aiResponse.block_2_professional;
-      
+
       const orcamento = `
 ${block1.header}
 
@@ -1166,7 +1398,7 @@ Documento gerado pela IA Budget Intelligence Engine
       // PREENCHER CAMPOS AUTOMATICAMENTE (extrair do bloco 1)
       const titleMatch = block1.header.match(/Ref: #([\w-]+)/);
       const title = titleMatch ? `Projeto ${titleMatch[1]}` : 'Orçamento Técnico';
-      
+
       setData(prevData => ({
         ...prevData,
         title: title,
@@ -1331,10 +1563,25 @@ Autenticidade Garantida`;
           stampData={stampData}
         />
       )}
+      {showPWAPrompt && <PWAInstallPrompt onClose={() => setShowPWAPrompt(false)} platform={platform} />}
 
       <header className="bg-[#1E293B] border-b border-[#D97706]/20 p-5 flex justify-between items-center z-50 shrink-0 shadow-2xl">
         <div className="flex items-center gap-3"><div className="bg-amber-500 p-2 rounded text-black shadow-lg"><Icons.Home /></div><div><h1 className="text-base font-black uppercase text-white leading-none">CANAÃ <span className="text-amber-500">PRO</span></h1><p className="text-[7px] font-bold text-slate-400 uppercase mt-1">SaaS Diamond v33</p></div></div>
         <div className="flex gap-2">
+          {!isAppInstalled && (
+            <button
+              onClick={() => setShowPWAPrompt(true)}
+              className="bg-gradient-to-r from-emerald-600 to-emerald-500 px-3 py-2 rounded text-xs font-black uppercase hover:from-emerald-500 hover:to-emerald-400 transition-all shadow-lg flex items-center gap-2"
+              title="Instalar App"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span className="hidden sm:inline">Instalar</span>
+            </button>
+          )}
           <button onClick={() => signOut(auth)} className="bg-slate-800 p-2 rounded text-slate-400"><Icons.LogOut /></button>
           <div className={"px-4 py-1.5 rounded text-[9px] font-black border transition-all flex items-center " + (isPremium ? "border-emerald-500 text-emerald-500 shadow-emerald-500/20" : "border-amber-500 text-amber-500 animate-pulse")}>{isPremium ? "DIAMOND ATIVO" : "ATIVAR CONTA"}</div>
         </div>
@@ -1456,7 +1703,224 @@ Autenticidade Garantida`;
 
         {view === 'finance' && <div className="space-y-6 text-center"><div className="bg-slate-800/80 rounded-lg p-8 space-y-6 shadow-2xl text-white"><h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Custos Base</h3><input type="number" placeholder="Material RS" value={materialCost} onChange={e => setMaterialCost(e.target.value)} className="w-full bg-slate-900 p-5 rounded font-black text-xl outline-none text-white border border-slate-700" /><input type="number" placeholder="Mao de Obra RS" value={laborCost} onChange={e => setLaborCost(e.target.value)} className="w-full bg-slate-900 p-5 rounded font-black text-xl outline-none text-white border border-slate-700" /><input type="number" placeholder="Markup %" value={extraMargin} onChange={e => setExtraMargin(e.target.value)} className="w-full bg-slate-900 p-5 rounded font-black text-xl outline-none text-white border border-amber-500/30" /></div><button onClick={() => setView('home')} className="w-full bg-amber-500 text-black py-6 rounded-lg font-black uppercase shadow-xl">Salvar Custos</button></div>}
 
-        {view === 'machine' && <div className="bg-slate-800/80 rounded-lg p-8 shadow-2xl text-center text-white"><div className="grid grid-cols-4 gap-2 mb-6">{['visa', 'master', 'elo', 'amex'].map(b => <button key={b} onClick={() => setCardBrand(b)} className={"py-3 rounded border-2 font-black text-[8px] uppercase " + (cardBrand === b ? "bg-amber-500 border-amber-500 text-black" : "border-slate-600")}>{b}</button>)}</div><div className="grid grid-cols-4 gap-2 mb-6">{[{ id: 'pix', l: 'Pix' }, { id: 'dinheiro', l: 'Dinheiro' }, { id: 'debit', l: 'Débito' }, { id: 'installments', l: 'Parcelar' }].map(m => <button key={m.id} onClick={() => { setModality(m.id); setInstallments(1); }} className={"p-3 rounded text-[9px] font-black uppercase border-2 " + (modality === m.id ? "bg-emerald-600 border-emerald-500 text-white" : "border-slate-600")}>{m.l}</button>)}</div>{modality === 'installments' && <div className="bg-[#0F172A] p-10 rounded-lg text-white overflow-hidden mb-6"><input type="range" min="2" max="12" value={installments} onChange={e => setInstallments(parseInt(e.target.value))} className="w-full accent-amber-500" /><h3 className="text-4xl font-black text-amber-200 mt-4">{BRL(finance.perMonth)}/mês ({installments}x)</h3></div>}<button onClick={() => setView('home')} className="w-full bg-[#1E293B] text-white py-6 rounded-lg font-black uppercase">Confirmar</button></div>}
+        {view === 'machine' && (
+          <div className="space-y-6 animate-in fade-in">
+            {/* FEE PASS-THROUGH TOGGLE - DESTAQUE */}
+            <div className="bg-gradient-to-br from-amber-500 to-amber-700 rounded-lg p-6 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="text-sm font-black uppercase text-black">Repassar Taxas ao Cliente</h3>
+                  <p className="text-[9px] text-black/70 font-bold mt-1">Ative para incluir taxas de cartão no valor final</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setPassFees(!passFees);
+                    if (user && db) {
+                      setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'settings'), {
+                        passFees: !passFees
+                      }, { merge: true });
+                    }
+                  }}
+                  className={`relative w-16 h-8 rounded-full transition-all ${passFees ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                >
+                  <div className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full transition-transform ${passFees ? 'transform translate-x-8' : ''} shadow-lg`} />
+                </button>
+              </div>
+            </div>
+
+            {/* CARD BRAND SELECTOR */}
+            <div className="bg-slate-800/80 rounded-lg p-6 shadow-2xl text-white">
+              <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Bandeira do Cartão</h3>
+              <div className="grid grid-cols-4 gap-2">
+                {['visa', 'master', 'elo', 'amex'].map(b => (
+                  <button
+                    key={b}
+                    onClick={() => setCardBrand(b)}
+                    className={`py-3 rounded border-2 font-black text-[8px] uppercase transition-all ${cardBrand === b ? 'bg-amber-500 border-amber-500 text-black shadow-lg' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}
+                  >
+                    {b}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* PAYMENT MODALITY */}
+            <div className="bg-slate-800/80 rounded-lg p-6 shadow-2xl text-white">
+              <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Modalidade de Pagamento</h3>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { id: 'pix', l: 'Pix 0%' },
+                  { id: 'dinheiro', l: 'Dinheiro 0%' },
+                  { id: 'debit', l: 'Débito' },
+                  { id: 'installments', l: 'Parcelar' }
+                ].map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => {
+                      setModality(m.id);
+                      setInstallments(m.id === 'installments' ? 2 : 1);
+                    }}
+                    className={`p-3 rounded text-[9px] font-black uppercase border-2 transition-all ${modality === m.id ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}
+                  >
+                    {m.l}
+                  </button>
+                ))}
+              </div>
+
+              {/* FEE CALCULATOR - VISUAL BREAKDOWN */}
+              {modality !== 'pix' && modality !== 'dinheiro' && (
+                <div className="mt-6 bg-black/40 p-6 rounded-lg border border-amber-500/30">
+                  <h4 className="text-xs font-black uppercase text-amber-400 mb-4">💳 Calculadora de Taxas</h4>
+
+                  {/* Show current fees */}
+                  <div className="space-y-3 mb-4">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-400">Valor Base:</span>
+                      <span className="font-black text-white">{BRL(finance.baseValue)}</span>
+                    </div>
+
+                    {modality === 'debit' && (
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-amber-400">Taxa Débito ({brandFees[cardBrand]?.debit || 0}%):</span>
+                        <span className="font-black text-amber-400">
+                          {passFees ? '+' : '-'} {BRL(finance.baseValue * ((brandFees[cardBrand]?.debit || 0) / 100))}
+                        </span>
+                      </div>
+                    )}
+
+                    {(modality === 'credit' || modality === 'installments') && (
+                      <>
+                        {modality === 'credit' && (
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-amber-400">Taxa Crédito ({brandFees[cardBrand]?.credit || 0}%):</span>
+                            <span className="font-black text-amber-400">
+                              {passFees ? '+' : '-'} {BRL(finance.baseValue * ((brandFees[cardBrand]?.credit || 0) / 100))}
+                            </span>
+                          </div>
+                        )}
+                        {modality === 'installments' && (
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-amber-400">
+                              Taxa Parcelado ({(brandFees[cardBrand]?.installmentBase || 0) + ((installments - 1) * (brandFees[cardBrand]?.perMonth || 0))}%):
+                            </span>
+                            <span className="font-black text-amber-400">
+                              {passFees ? '+' : '-'} {BRL(finance.finalVal - finance.baseValue)}
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    <div className="border-t border-white/10 pt-3 flex justify-between items-center text-lg">
+                      <span className="text-emerald-400 font-black">Valor Final:</span>
+                      <span className="font-black text-emerald-400">{BRL(finance.finalVal)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* INSTALLMENTS SLIDER */}
+              {modality === 'installments' && (
+                <div className="bg-[#0F172A] p-8 rounded-lg text-white overflow-hidden mt-6 border-2 border-amber-500/30">
+                  <label className="text-[9px] uppercase font-black text-slate-400 mb-3 block">Número de Parcelas</label>
+                  <input
+                    type="range"
+                    min="2"
+                    max="12"
+                    value={installments}
+                    onChange={e => setInstallments(parseInt(e.target.value))}
+                    className="w-full accent-amber-500 h-2"
+                  />
+                  <div className="mt-4 text-center">
+                    <h3 className="text-4xl font-black text-amber-200">{installments}x</h3>
+                    <p className="text-sm text-slate-400 mt-1">de</p>
+                    <h3 className="text-3xl font-black text-emerald-400 mt-2">{BRL(finance.perMonth)}</h3>
+                    <p className="text-xs text-slate-500 mt-2 font-bold">Total: {BRL(finance.finalVal)}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* FEE EDITOR - ADVANCED SETTINGS */}
+            <div className="bg-slate-800/80 rounded-lg p-6 shadow-2xl text-white">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase text-amber-400">⚙️ Configurar Taxas - {cardBrand.toUpperCase()}</h3>
+                <button
+                  onClick={() => {
+                    if (user && db) {
+                      setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'settings'), {
+                        brandFees: brandFees
+                      }, { merge: true });
+                      alert('✅ Taxas salvas com sucesso!');
+                    }
+                  }}
+                  className="bg-emerald-600 px-4 py-2 rounded text-xs font-black uppercase hover:bg-emerald-500 transition-all"
+                >
+                  Salvar
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[9px] uppercase font-black text-slate-400 mb-2 block">Débito (%)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={brandFees[cardBrand]?.debit || 0}
+                    onChange={e => updateFee('debit', e.target.value)}
+                    className="w-full bg-slate-900 p-3 rounded font-black text-lg outline-none text-amber-400 border border-slate-700 focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] uppercase font-black text-slate-400 mb-2 block">Crédito (%)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={brandFees[cardBrand]?.credit || 0}
+                    onChange={e => updateFee('credit', e.target.value)}
+                    className="w-full bg-slate-900 p-3 rounded font-black text-lg outline-none text-amber-400 border border-slate-700 focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] uppercase font-black text-slate-400 mb-2 block">Base Parcelado (%)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={brandFees[cardBrand]?.installmentBase || 0}
+                    onChange={e => updateFee('installmentBase', e.target.value)}
+                    className="w-full bg-slate-900 p-3 rounded font-black text-lg outline-none text-amber-400 border border-slate-700 focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] uppercase font-black text-slate-400 mb-2 block">Por Parcela (%)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={brandFees[cardBrand]?.perMonth || 0}
+                    onChange={e => updateFee('perMonth', e.target.value)}
+                    className="w-full bg-slate-900 p-3 rounded font-black text-lg outline-none text-amber-400 border border-slate-700 focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 bg-amber-500/10 p-3 rounded border border-amber-500/30">
+                <p className="text-[9px] text-amber-400 font-bold">
+                  💡 <strong>Dica:</strong> Taxa parcelada = Base + (Parcelas - 1) × Por Parcela
+                </p>
+                <p className="text-[9px] text-slate-400 mt-1">
+                  Ex: 3x = {brandFees[cardBrand]?.installmentBase || 0}% + 2 × {brandFees[cardBrand]?.perMonth || 0}% = {(brandFees[cardBrand]?.installmentBase || 0) + (2 * (brandFees[cardBrand]?.perMonth || 0))}%
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setView('home')}
+              className="w-full bg-amber-500 text-black py-6 rounded-lg font-black uppercase shadow-xl active:scale-95 transition-all"
+            >
+              Confirmar Configurações
+            </button>
+          </div>
+        )}
 
         {view === 'docs' && (
           <div className="space-y-6 text-white">

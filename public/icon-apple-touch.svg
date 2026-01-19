@@ -1,0 +1,8 @@
+<!-- Apple Touch Icon 180x180 -->
+<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" fill="#000000" rx="30"/>
+  <circle cx="90" cy="90" r="55" fill="none" stroke="#d97706" stroke-width="7"/>
+  <path d="M 90 43 L 127 90 L 90 137 L 53 90 Z" fill="#d97706" opacity="0.8"/>
+  <path d="M 66 75 L 114 75 L 114 84 L 66 84 Z" fill="#ffffff" opacity="0.9"/>
+  <path d="M 66 94 L 114 94 L 114 103 L 66 103 Z" fill="#ffffff" opacity="0.7"/>
+</svg>
